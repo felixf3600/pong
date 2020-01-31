@@ -316,12 +316,12 @@ function () {
       // console.log(event.key);
       switch (event.key) {
         case keyUp:
-          _this.movePaddle(-speed);
+          _this.movePaddle(-_this.speed);
 
           break;
 
         case KeyDown:
-          _this.movePaddle(speed);
+          _this.movePaddle(_this.speed);
 
           break;
         // default:
@@ -331,6 +331,22 @@ function () {
   }
 
   _createClass(Paddle, [{
+    key: "getPaddlePosition",
+    value: function getPaddlePosition() {
+      var postion = {
+        top: this.y,
+        left: this.x,
+        bottom: this.y + this.height,
+        right: this.x + this.width
+      };
+      return postion;
+    }
+  }, {
+    key: "paddleScore",
+    value: function paddleScore() {
+      this.score++;
+    }
+  }, {
     key: "movePaddle",
     value: function movePaddle(speed) {
       var nextSpace = this.y + speed;
@@ -338,9 +354,7 @@ function () {
 
       if (nextSpace >= 0 && nextSpace <= maxBottom) {
         this.y = nextSpace;
-      } // console.log(maxBottom, nextSpace, this.speed, direction);
-      // this.render(svg);
-
+      }
     }
   }, {
     key: "render",
@@ -359,7 +373,9 @@ function () {
 }();
 
 exports.default = Paddle;
-},{"../settings":"src/settings.js"}],"src/partials/Ball.js":[function(require,module,exports) {
+},{"../settings":"src/settings.js"}],"public/sounds/pong-01.wav":[function(require,module,exports) {
+module.exports = "/pong-01.274dcf0a.wav";
+},{}],"src/partials/Ball.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -368,6 +384,10 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = void 0;
 
 var _settings = require("../settings");
+
+var _pong = _interopRequireDefault(require("../../public/sounds/pong-01.wav"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -383,22 +403,101 @@ function () {
 
     this.boardWidth = boardWidth;
     this.boardHeight = boardHeight;
-    this.y = boardHeight / 2;
-    this.x = boardWidth / 2;
     this.speed = 10;
     this.radius = radius;
     this.direction = 1;
+    this.reset();
+    this.pingsound = new Audio(_pong.default);
   }
 
   _createClass(Ball, [{
+    key: "reset",
+    value: function reset() {
+      this.y = this.boardHeight / 2;
+      this.x = this.boardWidth / 2; // this.vy = this.randomV();
+
+      this.vy = 0;
+
+      while (this.vy === 0) {
+        this.vy = Math.floor(Math.random() * 10) - 5;
+      }
+
+      this.vx = (6 - Math.abs(this.vy)) * this.direction;
+    }
+  }, {
+    key: "wallCollision",
+    value: function wallCollision() {
+      var ballLocation = {
+        top: this.vy + this.y - this.radius,
+        right: this.vx + this.x + this.radius,
+        bottom: this.vy + this.y + this.radius,
+        left: this.vx + this.x - this.radius
+      };
+
+      if (ballLocation.bottom >= this.boardHeight || ballLocation.top < 0) {
+        this.vy = this.vy * -1;
+        this.pingsound;
+      }
+
+      if (ballLocation.right >= this.boardWidth || ballLocation.left < 0) {
+        this.reset();
+      }
+    }
+  }, {
+    key: "paddleCollision",
+    value: function paddleCollision(paddle1, paddle2) {
+      //  if (this.vx <0) {
+      //    const position = paddle1.getPaddle
+      //  }
+      var ballPosition = {
+        center: this.radius,
+        top: this.y - this.radius,
+        left: this.x - this.radius,
+        bottom: this.y + this.radius,
+        right: this.x + this.radius
+      };
+      var playerOne = paddle1.getPaddlePosition();
+      var playerTwo = paddle2.getPaddlePosition();
+
+      if (this.vx < 0) {
+        if (ballPosition.left <= playerOne.right) {
+          if (ballPosition.center >= playerOne.top || ballPosition.center <= playerOne.Bottom) {
+            this.vx = this.vx * -1;
+          } else {
+            paddle2.score();
+          }
+        }
+      } else {
+        if (ballPosition.right >= playerTwo.left) {
+          if (ballPosition.center >= playerTwo.top || ballPosition.center <= playerTwo.Bottom) {
+            this.vx = this.vx * -1;
+          } else {
+            paddle1.score();
+          }
+        }
+      }
+    }
+  }, {
+    key: "ballCollision",
+    value: function ballCollision() {}
+  }, {
+    key: "ballMove",
+    value: function ballMove() {
+      this.x = this.x + this.vx;
+      this.y = this.y + this.vy;
+    }
+  }, {
     key: "render",
-    value: function render(svg) {
+    value: function render(svg, paddle1, paddle2) {
       var circleSvg = document.createElementNS(_settings.SVG_NS, "circle");
       circleSvg.setAttributeNS(null, "cx", this.x);
       circleSvg.setAttributeNS(null, "cy", this.y);
       circleSvg.setAttributeNS(null, "r", this.radius);
       circleSvg.setAttributeNS(null, "fill", "white");
       svg.appendChild(circleSvg);
+      this.ballMove();
+      this.wallCollision();
+      this.paddleCollision(paddle1, paddle2); // this.ballCollision();
     } // ballMovement(svg) {}
 
   }]);
@@ -407,7 +506,7 @@ function () {
 }();
 
 exports.default = Ball;
-},{"../settings":"src/settings.js"}],"src/partials/Game.js":[function(require,module,exports) {
+},{"../settings":"src/settings.js","../../public/sounds/pong-01.wav":"public/sounds/pong-01.wav"}],"src/partials/Game.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -461,7 +560,7 @@ function () {
       this.board.render(svg);
       this.paddle1.render(svg);
       this.paddle2.render(svg);
-      this.ball1.render(svg); // More code goes here....
+      this.ball1.render(svg, this.paddle1, this.paddle2); // More code goes here....
     }
   }]);
 

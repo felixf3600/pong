@@ -12,25 +12,35 @@ export default class Paddle {
       // console.log(event.key);
       switch (event.key) {
         case keyUp:
-          this.movePaddle(-speed);
+          this.movePaddle(-this.speed);
           break;
         case KeyDown:
-          this.movePaddle(speed);
+          this.movePaddle(this.speed);
           break;
         // default:
         //   break;
       }
     });
   }
+  getPaddlePosition() {
+    const postion = {
+      top: this.y,
+      left: this.x,
+      bottom: this.y + this.height,
+      right: this.x + this.width
+    };
+    return postion;
+  }
 
+  paddleScore() {
+    this.score++;
+  }
   movePaddle(speed) {
     const nextSpace = this.y + speed;
     const maxBottom = nextSpace + this.height;
     if (nextSpace >= 0 && nextSpace <= maxBottom) {
       this.y = nextSpace;
     }
-    // console.log(maxBottom, nextSpace, this.speed, direction);
-    // this.render(svg);
   }
 
   render(svg) {
