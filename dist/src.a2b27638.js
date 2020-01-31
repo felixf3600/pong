@@ -195,7 +195,7 @@ module.hot.accept(reloadCSS);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.BALL_RADIUS = exports.PADDLE_GAP = exports.PADDLE_HEIGHT = exports.PADDLE_WIDTH = exports.GAME_HEIGHT = exports.GAME_WIDTH = exports.SVG_NS = void 0;
+exports.PADDLE_SPEED = exports.PLAYER_TWO_DOWN = exports.PLAYER_TWO_UP = exports.PLAYER_ONE_DOWN = exports.PLAYER_ONE_UP = exports.BALL_RADIUS = exports.PADDLE_GAP = exports.PADDLE_HEIGHT = exports.PADDLE_WIDTH = exports.GAME_HEIGHT = exports.GAME_WIDTH = exports.SVG_NS = void 0;
 var SVG_NS = "http://www.w3.org/2000/svg";
 exports.SVG_NS = SVG_NS;
 var GAME_WIDTH = 512;
@@ -210,6 +210,16 @@ var PADDLE_GAP = 10;
 exports.PADDLE_GAP = PADDLE_GAP;
 var BALL_RADIUS = 10;
 exports.BALL_RADIUS = BALL_RADIUS;
+var PLAYER_ONE_UP = "a";
+exports.PLAYER_ONE_UP = PLAYER_ONE_UP;
+var PLAYER_ONE_DOWN = "z";
+exports.PLAYER_ONE_DOWN = PLAYER_ONE_DOWN;
+var PLAYER_TWO_UP = "ArrowUp";
+exports.PLAYER_TWO_UP = PLAYER_TWO_UP;
+var PLAYER_TWO_DOWN = "ArrowDown";
+exports.PLAYER_TWO_DOWN = PLAYER_TWO_DOWN;
+var PADDLE_SPEED = 10;
+exports.PADDLE_SPEED = PADDLE_SPEED;
 },{}],"src/partials/Board.js":[function(require,module,exports) {
 "use strict";
 
@@ -237,24 +247,33 @@ function () {
   }
 
   _createClass(Board, [{
-    key: "render",
-    value: function render(svg) {
+    key: "drawBoard",
+    value: function drawBoard(svg) {
       var boardSvg = document.createElementNS(_settings.SVG_NS, "rect");
-      var centerLine = document.createElementNS(_settings.SVG_NS, "line");
-      var center = this.width / 2;
       boardSvg.setAttributeNS(null, "x", 0);
       boardSvg.setAttributeNS(null, "y", 0);
       boardSvg.setAttributeNS(null, "width", this.width);
       boardSvg.setAttributeNS(null, "height", this.height);
       boardSvg.setAttributeNS(null, "fill", "#353535");
-      centerLine.setAttributeNS(null, "x1", center);
+      svg.appendChild(boardSvg);
+    }
+  }, {
+    key: "drawCenterLine",
+    value: function drawCenterLine(svg) {
+      var centerLine = document.createElementNS(_settings.SVG_NS, "line");
+      centerLine.setAttributeNS(null, "x1", this.width / 2);
       centerLine.setAttributeNS(null, "y1", 0);
-      centerLine.setAttributeNS(null, "x2", center);
+      centerLine.setAttributeNS(null, "x2", this.width / 2);
       centerLine.setAttributeNS(null, "y2", this.height);
       centerLine.setAttributeNS(null, "stroke", "white");
       centerLine.setAttributeNS(null, "stroke-dasharray", "20 15");
-      svg.appendChild(boardSvg);
       svg.appendChild(centerLine);
+    }
+  }, {
+    key: "render",
+    value: function render(svg) {
+      this.drawBoard(svg);
+      this.drawCenterLine(svg);
     }
   }]);
 
@@ -281,7 +300,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var Paddle =
 /*#__PURE__*/
 function () {
-  function Paddle(boardHeight, width, height, x, y) {
+  function Paddle(boardHeight, width, height, x, y, keyUp, KeyDown, speed) {
+    var _this = this;
+
     _classCallCheck(this, Paddle);
 
     this.boardHeight = boardHeight;
@@ -289,11 +310,39 @@ function () {
     this.height = height;
     this.x = x;
     this.y = y;
-    this.speed = 10;
     this.score = 0;
+    this.speed = speed;
+    document.addEventListener("keydown", function (event) {
+      // console.log(event.key);
+      switch (event.key) {
+        case keyUp:
+          _this.movePaddle(-speed);
+
+          break;
+
+        case KeyDown:
+          _this.movePaddle(speed);
+
+          break;
+        // default:
+        //   break;
+      }
+    });
   }
 
   _createClass(Paddle, [{
+    key: "movePaddle",
+    value: function movePaddle(speed) {
+      var nextSpace = this.y + speed;
+      var maxBottom = nextSpace + this.height;
+
+      if (nextSpace >= 0 && nextSpace <= maxBottom) {
+        this.y = nextSpace;
+      } // console.log(maxBottom, nextSpace, this.speed, direction);
+      // this.render(svg);
+
+    }
+  }, {
     key: "render",
     value: function render(svg) {
       var paddleSvg = document.createElementNS(_settings.SVG_NS, "rect");
@@ -350,7 +399,8 @@ function () {
       circleSvg.setAttributeNS(null, "r", this.radius);
       circleSvg.setAttributeNS(null, "fill", "white");
       svg.appendChild(circleSvg);
-    }
+    } // ballMovement(svg) {}
+
   }]);
 
   return Ball;
@@ -384,31 +434,30 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var Game =
 /*#__PURE__*/
 function () {
-  function Game(element, width, height, paddleWidth, paddleHeight, ballRadius) {
+  function Game(element) {
     _classCallCheck(this, Game);
 
-    this.element = element;
-    this.width = width;
-    this.height = height;
-    this.paddleY = paddleHeight;
-    this.paddleX = paddleWidth;
-    this.ballRadius = ballRadius;
-    this.paddleC = this.gameElement = document.getElementById(this.element);
-    this.board = new _Board.default(this.width, this.height);
-    this.paddle1 = new _Paddle.default(this.height, this.paddleX, this.paddleY, 10, (this.height - this.paddleY) / 2);
-    this.paddle2 = new _Paddle.default(this.height, this.paddleX, this.paddleY, this.width - this.paddleX, (this.height - this.paddleY) / 2);
-    this.ball1 = new _Ball.default(this.ballRadius, this.width, this.height);
+    this.gameElement = document.getElementById(element);
+    this.board = new _Board.default(_settings.GAME_WIDTH, _settings.GAME_HEIGHT);
+    this.paddle1 = new _Paddle.default(_settings.GAME_HEIGHT, _settings.PADDLE_WIDTH, _settings.PADDLE_HEIGHT, _settings.PADDLE_GAP, (_settings.GAME_HEIGHT - _settings.PADDLE_HEIGHT) / 2, _settings.PLAYER_ONE_UP, _settings.PLAYER_ONE_DOWN, _settings.PADDLE_SPEED);
+    this.paddle2 = new _Paddle.default(_settings.GAME_HEIGHT, _settings.PADDLE_WIDTH, _settings.PADDLE_HEIGHT, _settings.GAME_WIDTH - _settings.PADDLE_WIDTH - _settings.PADDLE_GAP, (_settings.GAME_HEIGHT - _settings.PADDLE_HEIGHT) / 2, _settings.PLAYER_TWO_UP, _settings.PLAYER_TWO_DOWN, _settings.PADDLE_SPEED);
+    this.ball1 = new _Ball.default(_settings.BALL_RADIUS, _settings.GAME_WIDTH, _settings.GAME_HEIGHT);
   }
 
   _createClass(Game, [{
+    key: "resetScreen",
+    value: function resetScreen(svg) {
+      svg.setAttributeNS(null, "width", _settings.GAME_WIDTH);
+      svg.setAttributeNS(null, "height", _settings.GAME_HEIGHT);
+      svg.setAttributeNS(null, "viewBox", "0 0 ".concat(_settings.GAME_WIDTH, " ").concat(_settings.GAME_HEIGHT));
+      this.gameElement.appendChild(svg);
+    }
+  }, {
     key: "render",
     value: function render() {
       this.gameElement.innerHTML = "";
       var svg = document.createElementNS(_settings.SVG_NS, "svg");
-      svg.setAttributeNS(null, "width", this.width);
-      svg.setAttributeNS(null, "height", this.height);
-      svg.setAttributeNS(null, "viewBox", "0 0 ".concat(this.width, " ").concat(this.height));
-      this.gameElement.appendChild(svg);
+      this.resetScreen(svg);
       this.board.render(svg);
       this.paddle1.render(svg);
       this.paddle2.render(svg);
@@ -432,7 +481,7 @@ var _settings = require("./settings");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // create a game instance
-var game = new _Game.default("game", _settings.GAME_WIDTH, _settings.GAME_HEIGHT, _settings.PADDLE_WIDTH, _settings.PADDLE_HEIGHT, _settings.BALL_RADIUS);
+var game = new _Game.default("game", _settings.GAME_WIDTH, _settings.GAME_HEIGHT);
 
 (function gameLoop() {
   game.render();
@@ -466,7 +515,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58692" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53834" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -1,44 +1,59 @@
-import { SVG_NS } from "../settings";
+import {
+  SVG_NS,
+  GAME_HEIGHT,
+  GAME_WIDTH,
+  PADDLE_HEIGHT,
+  PADDLE_GAP,
+  PADDLE_WIDTH,
+  BALL_RADIUS,
+  PLAYER_ONE_DOWN,
+  PLAYER_ONE_UP,
+  PLAYER_TWO_DOWN,
+  PLAYER_TWO_UP,
+  PADDLE_SPEED
+} from "../settings";
 import Board from "./Board";
 import Paddle from "./Paddle";
 import Ball from "./Ball";
 
 export default class Game {
-  constructor(element, width, height, paddleWidth, paddleHeight, ballRadius) {
-    this.element = element;
-    this.width = width;
-    this.height = height;
-    this.paddleY = paddleHeight;
-    this.paddleX = paddleWidth;
-    this.ballRadius = ballRadius;
-    this.paddleC = this.gameElement = document.getElementById(this.element);
-    this.board = new Board(this.width, this.height);
+  constructor(element) {
+    this.gameElement = document.getElementById(element);
+    this.board = new Board(GAME_WIDTH, GAME_HEIGHT);
     this.paddle1 = new Paddle(
-      this.height,
-      this.paddleX,
-      this.paddleY,
-      10,
-      (this.height - this.paddleY) / 2
+      GAME_HEIGHT,
+      PADDLE_WIDTH,
+      PADDLE_HEIGHT,
+      PADDLE_GAP,
+      (GAME_HEIGHT - PADDLE_HEIGHT) / 2,
+      PLAYER_ONE_UP,
+      PLAYER_ONE_DOWN,
+      PADDLE_SPEED
     );
     this.paddle2 = new Paddle(
-      this.height,
-      this.paddleX,
-      this.paddleY,
-      this.width - this.paddleX,
-      (this.height - this.paddleY) / 2
+      GAME_HEIGHT,
+      PADDLE_WIDTH,
+      PADDLE_HEIGHT,
+      GAME_WIDTH - PADDLE_WIDTH - PADDLE_GAP,
+      (GAME_HEIGHT - PADDLE_HEIGHT) / 2,
+      PLAYER_TWO_UP,
+      PLAYER_TWO_DOWN,
+      PADDLE_SPEED
     );
 
-    this.ball1 = new Ball(this.ballRadius, this.width, this.height);
+    this.ball1 = new Ball(BALL_RADIUS, GAME_WIDTH, GAME_HEIGHT);
+  }
+  resetScreen(svg) {
+    svg.setAttributeNS(null, "width", GAME_WIDTH);
+    svg.setAttributeNS(null, "height", GAME_HEIGHT);
+    svg.setAttributeNS(null, "viewBox", `0 0 ${GAME_WIDTH} ${GAME_HEIGHT}`);
+    this.gameElement.appendChild(svg);
   }
 
   render() {
     this.gameElement.innerHTML = "";
-
     let svg = document.createElementNS(SVG_NS, "svg");
-    svg.setAttributeNS(null, "width", this.width);
-    svg.setAttributeNS(null, "height", this.height);
-    svg.setAttributeNS(null, "viewBox", `0 0 ${this.width} ${this.height}`);
-    this.gameElement.appendChild(svg);
+    this.resetScreen(svg);
     this.board.render(svg);
     this.paddle1.render(svg);
     this.paddle2.render(svg);

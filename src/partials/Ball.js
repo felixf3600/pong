@@ -17,4 +17,6 @@ export default class Ball {
     circleSvg.setAttributeNS(null, "fill", "white");
     svg.appendChild(circleSvg);
   }
+
+  // ballMovement(svg) {}
 }
