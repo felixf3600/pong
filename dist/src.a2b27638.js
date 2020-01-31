@@ -195,7 +195,7 @@ module.hot.accept(reloadCSS);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PADDLE_HEIGHT = exports.PADDLE_WIDTH = exports.GAME_HEIGHT = exports.GAME_WIDTH = exports.SVG_NS = void 0;
+exports.BALL_RADIUS = exports.PADDLE_GAP = exports.PADDLE_HEIGHT = exports.PADDLE_WIDTH = exports.GAME_HEIGHT = exports.GAME_WIDTH = exports.SVG_NS = void 0;
 var SVG_NS = "http://www.w3.org/2000/svg";
 exports.SVG_NS = SVG_NS;
 var GAME_WIDTH = 512;
@@ -206,6 +206,10 @@ var PADDLE_WIDTH = 8;
 exports.PADDLE_WIDTH = PADDLE_WIDTH;
 var PADDLE_HEIGHT = 56;
 exports.PADDLE_HEIGHT = PADDLE_HEIGHT;
+var PADDLE_GAP = 10;
+exports.PADDLE_GAP = PADDLE_GAP;
+var BALL_RADIUS = 10;
+exports.BALL_RADIUS = BALL_RADIUS;
 },{}],"src/partials/Board.js":[function(require,module,exports) {
 "use strict";
 
@@ -380,7 +384,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var Game =
 /*#__PURE__*/
 function () {
-  function Game(element, width, height, paddleWidth, paddleHeight) {
+  function Game(element, width, height, paddleWidth, paddleHeight, ballRadius) {
     _classCallCheck(this, Game);
 
     this.element = element;
@@ -388,24 +392,12 @@ function () {
     this.height = height;
     this.paddleY = paddleHeight;
     this.paddleX = paddleWidth;
+    this.ballRadius = ballRadius;
     this.paddleC = this.gameElement = document.getElementById(this.element);
     this.board = new _Board.default(this.width, this.height);
     this.paddle1 = new _Paddle.default(this.height, this.paddleX, this.paddleY, 10, (this.height - this.paddleY) / 2);
-    this.paddle2 = new _Paddle.default(this.height, 9, 56, 494, 100);
-    this.ball1 = new _Ball.default(5, this.width, this.height); // this.paddle1 = new Paddle(
-    //   this.height,
-    //   this.paddleX,
-    //   this.paddleY,
-    //   0,
-    //   (this.heigth - this.paddleY) / 2
-    // );
-    // this.paddle2 = new Paddle(
-    //   this.height,
-    //   this.paddleX,
-    //   this.paddleY,
-    //   this.width - this.paddleX,
-    //   (this.heigth - this.paddleY) / 2
-    // );
+    this.paddle2 = new _Paddle.default(this.height, this.paddleX, this.paddleY, this.width - this.paddleX, (this.height - this.paddleY) / 2);
+    this.ball1 = new _Ball.default(this.ballRadius, this.width, this.height);
   }
 
   _createClass(Game, [{
@@ -440,7 +432,7 @@ var _settings = require("./settings");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // create a game instance
-var game = new _Game.default("game", _settings.GAME_WIDTH, _settings.GAME_HEIGHT, _settings.PADDLE_WIDTH, _settings.PADDLE_HEIGHT);
+var game = new _Game.default("game", _settings.GAME_WIDTH, _settings.GAME_HEIGHT, _settings.PADDLE_WIDTH, _settings.PADDLE_HEIGHT, _settings.BALL_RADIUS);
 
 (function gameLoop() {
   game.render();
