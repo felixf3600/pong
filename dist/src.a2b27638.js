@@ -331,6 +331,11 @@ function () {
   }
 
   _createClass(Paddle, [{
+    key: "getScore",
+    value: function getScore() {
+      return this.score;
+    }
+  }, {
     key: "getPaddlePosition",
     value: function getPaddlePosition() {
       var postion = {
@@ -450,7 +455,7 @@ function () {
       //    const position = paddle1.getPaddle
       //  }
       var ballPosition = {
-        center: this.radius,
+        center: this.y + this.vy,
         top: this.y - this.radius,
         left: this.x - this.radius,
         bottom: this.y + this.radius,
@@ -460,11 +465,12 @@ function () {
       var playerTwo = paddle2.getPaddlePosition();
 
       if (this.vx < 0) {
-        if (ballPosition.left <= playerOne.right) {
+        if (ballPosition.left < playerOne.right) {
           if (ballPosition.center >= playerOne.top || ballPosition.center <= playerOne.Bottom) {
             this.vx = this.vx * -1;
           } else {
-            paddle2.score();
+            paddle2.paddleScore();
+            this.reset();
           }
         }
       } else {
@@ -472,14 +478,12 @@ function () {
           if (ballPosition.center >= playerTwo.top || ballPosition.center <= playerTwo.Bottom) {
             this.vx = this.vx * -1;
           } else {
-            paddle1.score();
+            paddle1.paddleScore();
+            this.reset();
           }
         }
       }
     }
-  }, {
-    key: "ballCollision",
-    value: function ballCollision() {}
   }, {
     key: "ballMove",
     value: function ballMove() {
@@ -497,16 +501,61 @@ function () {
       svg.appendChild(circleSvg);
       this.ballMove();
       this.wallCollision();
-      this.paddleCollision(paddle1, paddle2); // this.ballCollision();
-    } // ballMovement(svg) {}
-
+      this.paddleCollision(paddle1, paddle2);
+    }
   }]);
 
   return Ball;
 }();
 
 exports.default = Ball;
-},{"../settings":"src/settings.js","../../public/sounds/pong-01.wav":"public/sounds/pong-01.wav"}],"src/partials/Game.js":[function(require,module,exports) {
+},{"../settings":"src/settings.js","../../public/sounds/pong-01.wav":"public/sounds/pong-01.wav"}],"src/partials/score.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _settings = require("../settings");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Score =
+/*#__PURE__*/
+function () {
+  function Score(x, y, size) {
+    _classCallCheck(this, Score);
+
+    this.x = x;
+    this.y = y;
+    this.size = size;
+  } // <!-- <text x="50" y="50" text-anchor="middle">SVG</text> -->
+
+
+  _createClass(Score, [{
+    key: "render",
+    value: function render(svg, score) {
+      var scoreSvg = document.createElementNS(_settings.SVG_NS, "text");
+      scoreSvg.setAttributeNS(null, "x", this.x);
+      scoreSvg.setAttributeNS(null, "y", this.y);
+      scoreSvg.textContent = score;
+      scoreSvg.setAttributeNS(null, "font-size", this.size);
+      scoreSvg.setAttributeNS(null, "font-family", "'Silkscreen Web', monotype");
+      scoreSvg.setAttributeNS(null, "fill", "white");
+      svg.appendChild(scoreSvg);
+    }
+  }]);
+
+  return Score;
+}();
+
+exports.default = Score;
+},{"../settings":"src/settings.js"}],"src/partials/Game.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -522,6 +571,8 @@ var _Paddle = _interopRequireDefault(require("./Paddle"));
 
 var _Ball = _interopRequireDefault(require("./Ball"));
 
+var _score = _interopRequireDefault(require("./score"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -534,13 +585,23 @@ var Game =
 /*#__PURE__*/
 function () {
   function Game(element) {
+    var _this = this;
+
     _classCallCheck(this, Game);
 
     this.gameElement = document.getElementById(element);
     this.board = new _Board.default(_settings.GAME_WIDTH, _settings.GAME_HEIGHT);
     this.paddle1 = new _Paddle.default(_settings.GAME_HEIGHT, _settings.PADDLE_WIDTH, _settings.PADDLE_HEIGHT, _settings.PADDLE_GAP, (_settings.GAME_HEIGHT - _settings.PADDLE_HEIGHT) / 2, _settings.PLAYER_ONE_UP, _settings.PLAYER_ONE_DOWN, _settings.PADDLE_SPEED);
     this.paddle2 = new _Paddle.default(_settings.GAME_HEIGHT, _settings.PADDLE_WIDTH, _settings.PADDLE_HEIGHT, _settings.GAME_WIDTH - _settings.PADDLE_WIDTH - _settings.PADDLE_GAP, (_settings.GAME_HEIGHT - _settings.PADDLE_HEIGHT) / 2, _settings.PLAYER_TWO_UP, _settings.PLAYER_TWO_DOWN, _settings.PADDLE_SPEED);
+    this.pause = false;
+    this.score1 = new _score.default(_settings.GAME_WIDTH / 2 - 50, 30, 30);
+    this.score2 = new _score.default(_settings.GAME_WIDTH / 2 + 25, 30, 30);
     this.ball1 = new _Ball.default(_settings.BALL_RADIUS, _settings.GAME_WIDTH, _settings.GAME_HEIGHT);
+    document.addEventListener("keydown", function (event) {
+      if (event.key === " ") {
+        _this.pause = !_this.pause;
+      }
+    });
   }
 
   _createClass(Game, [{
@@ -554,13 +615,18 @@ function () {
   }, {
     key: "render",
     value: function render() {
-      this.gameElement.innerHTML = "";
-      var svg = document.createElementNS(_settings.SVG_NS, "svg");
-      this.resetScreen(svg);
-      this.board.render(svg);
-      this.paddle1.render(svg);
-      this.paddle2.render(svg);
-      this.ball1.render(svg, this.paddle1, this.paddle2); // More code goes here....
+      if (this.pause !== false) {
+        this.gameElement.innerHTML = "";
+        var svg = document.createElementNS(_settings.SVG_NS, "svg");
+        this.resetScreen(svg);
+        this.board.render(svg);
+        this.paddle1.render(svg);
+        this.paddle2.render(svg);
+        this.ball1.render(svg, this.paddle1, this.paddle2);
+        this.score1.render(svg, this.paddle1.getScore());
+        this.score2.render(svg, this.paddle2.getScore());
+      } // More code goes here....
+
     }
   }]);
 
@@ -568,7 +634,7 @@ function () {
 }();
 
 exports.default = Game;
-},{"../settings":"src/settings.js","./Board":"src/partials/Board.js","./Paddle":"src/partials/Paddle.js","./Ball":"src/partials/Ball.js"}],"src/index.js":[function(require,module,exports) {
+},{"../settings":"src/settings.js","./Board":"src/partials/Board.js","./Paddle":"src/partials/Paddle.js","./Ball":"src/partials/Ball.js","./score":"src/partials/score.js"}],"src/index.js":[function(require,module,exports) {
 "use strict";
 
 require("./styles/game.css");

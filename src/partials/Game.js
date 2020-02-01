@@ -15,6 +15,7 @@ import {
 import Board from "./Board";
 import Paddle from "./Paddle";
 import Ball from "./Ball";
+import Score from "./score";
 
 export default class Game {
   constructor(element) {
@@ -40,8 +41,15 @@ export default class Game {
       PLAYER_TWO_DOWN,
       PADDLE_SPEED
     );
-
+    this.pause = false;
+    this.score1 = new Score(GAME_WIDTH / 2 - 50, 30, 30);
+    this.score2 = new Score(GAME_WIDTH / 2 + 25, 30, 30);
     this.ball1 = new Ball(BALL_RADIUS, GAME_WIDTH, GAME_HEIGHT);
+    document.addEventListener("keydown", event => {
+      if (event.key === " ") {
+        this.pause = !this.pause;
+      }
+    });
   }
   resetScreen(svg) {
     svg.setAttributeNS(null, "width", GAME_WIDTH);
@@ -51,14 +59,17 @@ export default class Game {
   }
 
   render() {
-    this.gameElement.innerHTML = "";
-    let svg = document.createElementNS(SVG_NS, "svg");
-    this.resetScreen(svg);
-    this.board.render(svg);
-    this.paddle1.render(svg);
-    this.paddle2.render(svg);
-    this.ball1.render(svg, this.paddle1, this.paddle2);
-
+    if (this.pause !== false) {
+      this.gameElement.innerHTML = "";
+      let svg = document.createElementNS(SVG_NS, "svg");
+      this.resetScreen(svg);
+      this.board.render(svg);
+      this.paddle1.render(svg);
+      this.paddle2.render(svg);
+      this.ball1.render(svg, this.paddle1, this.paddle2);
+      this.score1.render(svg, this.paddle1.getScore());
+      this.score2.render(svg, this.paddle2.getScore());
+    }
     // More code goes here....
   }
 }

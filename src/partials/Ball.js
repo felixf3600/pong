@@ -42,24 +42,26 @@ export default class Ball {
     //  }
 
     const ballPosition = {
-      center: this.radius,
+      center: this.y + this.vy,
       top: this.y - this.radius,
       left: this.x - this.radius,
       bottom: this.y + this.radius,
       right: this.x + this.radius
     };
+
     const playerOne = paddle1.getPaddlePosition();
     const playerTwo = paddle2.getPaddlePosition();
 
     if (this.vx < 0) {
-      if (ballPosition.left <= playerOne.right) {
+      if (ballPosition.left < playerOne.right) {
         if (
           ballPosition.center >= playerOne.top ||
           ballPosition.center <= playerOne.Bottom
         ) {
           this.vx = this.vx * -1;
         } else {
-          paddle2.score();
+          paddle2.paddleScore();
+          this.reset();
         }
       }
     } else {
@@ -70,12 +72,12 @@ export default class Ball {
         ) {
           this.vx = this.vx * -1;
         } else {
-          paddle1.score();
+          paddle1.paddleScore();
+          this.reset();
         }
       }
     }
   }
-  ballCollision() {}
 
   ballMove() {
     this.x = this.x + this.vx;
@@ -91,8 +93,5 @@ export default class Ball {
     this.ballMove();
     this.wallCollision();
     this.paddleCollision(paddle1, paddle2);
-    // this.ballCollision();
   }
-
-  // ballMovement(svg) {}
 }
