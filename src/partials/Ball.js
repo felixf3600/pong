@@ -10,10 +10,18 @@ export default class Ball {
     this.reset();
     this.pingsound = new Audio(ping);
   }
+  changeDirection(player1, player2) {
+    scoreOne = player1.getScore();
+    scoreTwo = player2.getScore();
+    if (scoreOne > ScoreTwo) {
+      this.direction = Math.abs(this.direction);
+    } else if (scoreTwo > ScoreOne) {
+      this.direction = Math.abs(this.direction) * -1;
+    }
+  }
   reset() {
     this.y = this.boardHeight / 2;
     this.x = this.boardWidth / 2;
-    // this.vy = this.randomV();
     this.vy = 0;
     while (this.vy === 0) {
       this.vy = Math.floor(Math.random() * 10) - 5;
@@ -36,47 +44,41 @@ export default class Ball {
     }
   }
 
-  paddleCollision(paddle1, paddle2) {
-    //  if (this.vx <0) {
-    //    const position = paddle1.getPaddle
-    //  }
+  detectCollision(position, position2, score) {
+    if (position.left < position2.right) {
+      if (
+        position.bottom >= position2.top &&
+        position.top <= position2.bottom
+      ) {
+        this.vx = this.vx * -1;
+      } else {
+        score.paddleScore();
 
+        this.reset();
+      }
+    }
+  }
+
+  paddleCollision(paddle1, paddle2) {
     const ballPosition = {
-      center: this.y + this.vy,
-      top: this.y - this.radius,
-      left: this.x - this.radius,
-      bottom: this.y + this.radius,
-      right: this.x + this.radius
+      center: this.y + this.vy + this.vy,
+      top: this.y + this.vy - this.radius,
+      left: this.x + this.vx - this.radius,
+      bottom: this.y + this.vy + this.radius,
+      right: this.x + this.vx + this.radius
     };
 
     const playerOne = paddle1.getPaddlePosition();
     const playerTwo = paddle2.getPaddlePosition();
 
     if (this.vx < 0) {
-      if (ballPosition.left < playerOne.right) {
-        if (
-          ballPosition.center >= playerOne.top ||
-          ballPosition.center <= playerOne.Bottom
-        ) {
-          this.vx = this.vx * -1;
-        } else {
-          paddle2.paddleScore();
-          this.reset();
-        }
-      }
+      this.detectCollision(ballPosition, playerOne, paddle2);
     } else {
-      if (ballPosition.right >= playerTwo.left) {
-        if (
-          ballPosition.center >= playerTwo.top ||
-          ballPosition.center <= playerTwo.Bottom
-        ) {
-          this.vx = this.vx * -1;
-        } else {
-          paddle1.paddleScore();
-          this.reset();
-        }
-      }
+      playerTwo.right = playerTwo.left;
+      ballPosition.left = ballPosition.right;
+      this.detectCollision(playerTwo, ballPosition, paddle1);
     }
+    this.changeDirection();
   }
 
   ballMove() {
@@ -90,8 +92,8 @@ export default class Ball {
     circleSvg.setAttributeNS(null, "r", this.radius);
     circleSvg.setAttributeNS(null, "fill", "white");
     svg.appendChild(circleSvg);
-    this.ballMove();
     this.wallCollision();
     this.paddleCollision(paddle1, paddle2);
+    this.ballMove();
   }
 }

@@ -416,11 +416,22 @@ function () {
   }
 
   _createClass(Ball, [{
+    key: "changeDirection",
+    value: function changeDirection(player1, player2) {
+      scoreOne = player1.getScore();
+      scoreTwo = player2.getScore();
+
+      if (scoreOne > ScoreTwo) {
+        this.direction = Math.abs(this.direction);
+      } else if (scoreTwo > ScoreOne) {
+        this.direction = Math.abs(this.direction) * -1;
+      }
+    }
+  }, {
     key: "reset",
     value: function reset() {
       this.y = this.boardHeight / 2;
-      this.x = this.boardWidth / 2; // this.vy = this.randomV();
-
+      this.x = this.boardWidth / 2;
       this.vy = 0;
 
       while (this.vy === 0) {
@@ -449,40 +460,39 @@ function () {
       }
     }
   }, {
+    key: "detectCollision",
+    value: function detectCollision(position, position2, score) {
+      if (position.left < position2.right) {
+        if (position.bottom >= position2.top && position.top <= position2.bottom) {
+          this.vx = this.vx * -1;
+        } else {
+          score.paddleScore();
+          this.reset();
+        }
+      }
+    }
+  }, {
     key: "paddleCollision",
     value: function paddleCollision(paddle1, paddle2) {
-      //  if (this.vx <0) {
-      //    const position = paddle1.getPaddle
-      //  }
       var ballPosition = {
-        center: this.y + this.vy,
-        top: this.y - this.radius,
-        left: this.x - this.radius,
-        bottom: this.y + this.radius,
-        right: this.x + this.radius
+        center: this.y + this.vy + this.vy,
+        top: this.y + this.vy - this.radius,
+        left: this.x + this.vx - this.radius,
+        bottom: this.y + this.vy + this.radius,
+        right: this.x + this.vx + this.radius
       };
       var playerOne = paddle1.getPaddlePosition();
       var playerTwo = paddle2.getPaddlePosition();
 
       if (this.vx < 0) {
-        if (ballPosition.left < playerOne.right) {
-          if (ballPosition.center >= playerOne.top || ballPosition.center <= playerOne.Bottom) {
-            this.vx = this.vx * -1;
-          } else {
-            paddle2.paddleScore();
-            this.reset();
-          }
-        }
+        this.detectCollision(ballPosition, playerOne, paddle2);
       } else {
-        if (ballPosition.right >= playerTwo.left) {
-          if (ballPosition.center >= playerTwo.top || ballPosition.center <= playerTwo.Bottom) {
-            this.vx = this.vx * -1;
-          } else {
-            paddle1.paddleScore();
-            this.reset();
-          }
-        }
+        playerTwo.right = playerTwo.left;
+        ballPosition.left = ballPosition.right;
+        this.detectCollision(playerTwo, ballPosition, paddle1);
       }
+
+      this.changeDirection();
     }
   }, {
     key: "ballMove",
@@ -499,9 +509,9 @@ function () {
       circleSvg.setAttributeNS(null, "r", this.radius);
       circleSvg.setAttributeNS(null, "fill", "white");
       svg.appendChild(circleSvg);
-      this.ballMove();
       this.wallCollision();
       this.paddleCollision(paddle1, paddle2);
+      this.ballMove();
     }
   }]);
 
@@ -680,7 +690,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53834" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49353" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
