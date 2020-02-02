@@ -11,12 +11,12 @@ export default class Ball {
     this.pingsound = new Audio(ping);
   }
   changeDirection(player1, player2) {
-    scoreOne = player1.getScore();
-    scoreTwo = player2.getScore();
-    if (scoreOne > ScoreTwo) {
-      this.direction = Math.abs(this.direction);
-    } else if (scoreTwo > ScoreOne) {
+    const scoreOne = player1.getScore();
+    const scoreTwo = player2.getScore();
+    if (scoreOne > scoreTwo) {
       this.direction = Math.abs(this.direction) * -1;
+    } else if (scoreTwo > scoreOne) {
+      this.direction = Math.abs(this.direction);
     }
   }
   reset() {
@@ -53,7 +53,6 @@ export default class Ball {
         this.vx = this.vx * -1;
       } else {
         score.paddleScore();
-
         this.reset();
       }
     }
@@ -78,7 +77,7 @@ export default class Ball {
       ballPosition.left = ballPosition.right;
       this.detectCollision(playerTwo, ballPosition, paddle1);
     }
-    this.changeDirection();
+    this.changeDirection(paddle1, paddle2);
   }
 
   ballMove() {

@@ -42,7 +42,7 @@ export default class Paddle {
   movePaddle(speed) {
     const nextSpace = this.y + speed;
     const maxBottom = nextSpace + this.height;
-    if (nextSpace >= 0 && nextSpace <= maxBottom) {
+    if (nextSpace >= 0 && maxBottom <= this.boardHeight) {
       this.y = nextSpace;
     }
   }

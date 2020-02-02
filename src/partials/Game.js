@@ -10,7 +10,8 @@ import {
   PLAYER_ONE_UP,
   PLAYER_TWO_DOWN,
   PLAYER_TWO_UP,
-  PADDLE_SPEED
+  PADDLE_SPEED,
+  ENDING_POINT
 } from "../settings";
 import Board from "./Board";
 import Paddle from "./Paddle";
@@ -58,18 +59,65 @@ export default class Game {
     this.gameElement.appendChild(svg);
   }
 
+  // <!-- <text x="50" y="50" text-anchor="middle">SVG</text> -->
+
+  displayEndingScore(svg, playerScore1, playerScore2) {
+    let winner = "";
+    if (playerScore1 < playerScore2) {
+      winner = "PLAYER 2";
+    } else {
+      winner = "PLAYER 1";
+    }
+    console.log(winner);
+    const finalSvg = document.createElementNS(SVG_NS, "text");
+    const secondLine = document.createElementNS(SVG_NS, "text");
+    finalSvg.setAttributeNS(null, "x", 80);
+    finalSvg.setAttributeNS(null, "y", 100);
+    finalSvg.textContent = "WINNER IS " + winner;
+    finalSvg.setAttributeNS(null, "font-size", 30);
+    finalSvg.setAttributeNS(null, "font-family", "'Silkscreen Web', monotype");
+    finalSvg.setAttributeNS(null, "fill", "red");
+    console.log(finalSvg);
+    svg.appendChild(finalSvg);
+    secondLine.setAttributeNS(null, "x", 150);
+    secondLine.setAttributeNS(null, "y", 150);
+    secondLine.textContent = playerScore1 + " vs " + playerScore2;
+    secondLine.setAttributeNS(null, "font-size", 50);
+    secondLine.setAttributeNS(
+      null,
+      "font-family",
+      "'Silkscreen Web', monotype"
+    );
+    secondLine.setAttributeNS(null, "fill", "red");
+    svg.appendChild(secondLine);
+    console.log(secondLine);
+  }
   render() {
-    if (this.pause !== false) {
+    let svg = document.createElementNS(SVG_NS, "svg");
+
+    if (
+      this.paddle1.score < ENDING_POINT &&
+      this.paddle2.score < ENDING_POINT
+    ) {
+      if (this.pause !== false) {
+        this.gameElement.innerHTML = "";
+        this.board.render(svg);
+        this.paddle1.render(svg);
+        this.paddle2.render(svg);
+        this.ball1.render(svg, this.paddle1, this.paddle2);
+        this.score1.render(svg, this.paddle1.getScore());
+        this.score2.render(svg, this.paddle2.getScore());
+        this.resetScreen(svg);
+      }
+    } else {
       this.gameElement.innerHTML = "";
-      let svg = document.createElementNS(SVG_NS, "svg");
-      this.resetScreen(svg);
       this.board.render(svg);
       this.paddle1.render(svg);
       this.paddle2.render(svg);
-      this.ball1.render(svg, this.paddle1, this.paddle2);
-      this.score1.render(svg, this.paddle1.getScore());
-      this.score2.render(svg, this.paddle2.getScore());
+      this.displayEndingScore(svg, this.paddle1.score, this.paddle2.score);
+      this.resetScreen(svg);
+      console.log(svg);
     }
-    // More code goes here....
   }
+  // More code goes here....
 }

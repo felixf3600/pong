@@ -10,3 +10,4 @@ export const PLAYER_ONE_DOWN = "z";
 export const PLAYER_TWO_UP = "ArrowUp";
 export const PLAYER_TWO_DOWN = "ArrowDown";
 export const PADDLE_SPEED = 10;
+export const ENDING_POINT = 1;

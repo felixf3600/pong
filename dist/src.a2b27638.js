@@ -195,7 +195,7 @@ module.hot.accept(reloadCSS);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PADDLE_SPEED = exports.PLAYER_TWO_DOWN = exports.PLAYER_TWO_UP = exports.PLAYER_ONE_DOWN = exports.PLAYER_ONE_UP = exports.BALL_RADIUS = exports.PADDLE_GAP = exports.PADDLE_HEIGHT = exports.PADDLE_WIDTH = exports.GAME_HEIGHT = exports.GAME_WIDTH = exports.SVG_NS = void 0;
+exports.ENDING_POINT = exports.PADDLE_SPEED = exports.PLAYER_TWO_DOWN = exports.PLAYER_TWO_UP = exports.PLAYER_ONE_DOWN = exports.PLAYER_ONE_UP = exports.BALL_RADIUS = exports.PADDLE_GAP = exports.PADDLE_HEIGHT = exports.PADDLE_WIDTH = exports.GAME_HEIGHT = exports.GAME_WIDTH = exports.SVG_NS = void 0;
 var SVG_NS = "http://www.w3.org/2000/svg";
 exports.SVG_NS = SVG_NS;
 var GAME_WIDTH = 512;
@@ -220,6 +220,8 @@ var PLAYER_TWO_DOWN = "ArrowDown";
 exports.PLAYER_TWO_DOWN = PLAYER_TWO_DOWN;
 var PADDLE_SPEED = 10;
 exports.PADDLE_SPEED = PADDLE_SPEED;
+var ENDING_POINT = 1;
+exports.ENDING_POINT = ENDING_POINT;
 },{}],"src/partials/Board.js":[function(require,module,exports) {
 "use strict";
 
@@ -357,7 +359,7 @@ function () {
       var nextSpace = this.y + speed;
       var maxBottom = nextSpace + this.height;
 
-      if (nextSpace >= 0 && nextSpace <= maxBottom) {
+      if (nextSpace >= 0 && maxBottom <= this.boardHeight) {
         this.y = nextSpace;
       }
     }
@@ -418,13 +420,13 @@ function () {
   _createClass(Ball, [{
     key: "changeDirection",
     value: function changeDirection(player1, player2) {
-      scoreOne = player1.getScore();
-      scoreTwo = player2.getScore();
+      var scoreOne = player1.getScore();
+      var scoreTwo = player2.getScore();
 
-      if (scoreOne > ScoreTwo) {
-        this.direction = Math.abs(this.direction);
-      } else if (scoreTwo > ScoreOne) {
+      if (scoreOne > scoreTwo) {
         this.direction = Math.abs(this.direction) * -1;
+      } else if (scoreTwo > scoreOne) {
+        this.direction = Math.abs(this.direction);
       }
     }
   }, {
@@ -492,7 +494,7 @@ function () {
         this.detectCollision(playerTwo, ballPosition, paddle1);
       }
 
-      this.changeDirection();
+      this.changeDirection(paddle1, paddle2);
     }
   }, {
     key: "ballMove",
@@ -621,23 +623,66 @@ function () {
       svg.setAttributeNS(null, "height", _settings.GAME_HEIGHT);
       svg.setAttributeNS(null, "viewBox", "0 0 ".concat(_settings.GAME_WIDTH, " ").concat(_settings.GAME_HEIGHT));
       this.gameElement.appendChild(svg);
+    } // <!-- <text x="50" y="50" text-anchor="middle">SVG</text> -->
+
+  }, {
+    key: "displayEndingScore",
+    value: function displayEndingScore(svg, playerScore1, playerScore2) {
+      var winner = "";
+
+      if (playerScore1 < playerScore2) {
+        winner = "PLAYER 2";
+      } else {
+        winner = "PLAYER 1";
+      }
+
+      console.log(winner);
+      var finalSvg = document.createElementNS(_settings.SVG_NS, "text");
+      var secondLine = document.createElementNS(_settings.SVG_NS, "text");
+      finalSvg.setAttributeNS(null, "x", 80);
+      finalSvg.setAttributeNS(null, "y", 100);
+      finalSvg.textContent = "WINNER IS " + winner;
+      finalSvg.setAttributeNS(null, "font-size", 30);
+      finalSvg.setAttributeNS(null, "font-family", "'Silkscreen Web', monotype");
+      finalSvg.setAttributeNS(null, "fill", "red");
+      console.log(finalSvg);
+      svg.appendChild(finalSvg);
+      secondLine.setAttributeNS(null, "x", 150);
+      secondLine.setAttributeNS(null, "y", 150);
+      secondLine.textContent = playerScore1 + " vs " + playerScore2;
+      secondLine.setAttributeNS(null, "font-size", 50);
+      secondLine.setAttributeNS(null, "font-family", "'Silkscreen Web', monotype");
+      secondLine.setAttributeNS(null, "fill", "red");
+      svg.appendChild(secondLine);
+      console.log(secondLine);
     }
   }, {
     key: "render",
     value: function render() {
-      if (this.pause !== false) {
+      var svg = document.createElementNS(_settings.SVG_NS, "svg");
+
+      if (this.paddle1.score < _settings.ENDING_POINT && this.paddle2.score < _settings.ENDING_POINT) {
+        if (this.pause !== false) {
+          this.gameElement.innerHTML = "";
+          this.board.render(svg);
+          this.paddle1.render(svg);
+          this.paddle2.render(svg);
+          this.ball1.render(svg, this.paddle1, this.paddle2);
+          this.score1.render(svg, this.paddle1.getScore());
+          this.score2.render(svg, this.paddle2.getScore());
+          this.resetScreen(svg);
+        }
+      } else {
         this.gameElement.innerHTML = "";
-        var svg = document.createElementNS(_settings.SVG_NS, "svg");
-        this.resetScreen(svg);
         this.board.render(svg);
         this.paddle1.render(svg);
         this.paddle2.render(svg);
-        this.ball1.render(svg, this.paddle1, this.paddle2);
-        this.score1.render(svg, this.paddle1.getScore());
-        this.score2.render(svg, this.paddle2.getScore());
-      } // More code goes here....
+        this.displayEndingScore(svg, this.paddle1.score, this.paddle2.score);
+        this.resetScreen(svg);
+        console.log(svg);
+      }
+    } // More code goes here....
 
-    }
   }]);
 
   return Game;

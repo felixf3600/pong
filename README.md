@@ -39,3 +39,23 @@ Once you have done this, you can run:
 `$ npm run deploy`
 
 Now check out your deployed site 🙂
+
+## Game Notes
+
+### Player Advantage
+
+The ball will be sent to the higher scoring player until this player gets passed
+
+### Game End
+
+The game is set to end once a player reaches a certain score. currently set to 10.
+
+### Final Score Display
+
+displays an announcement of who the winner is and the final scores. all in red.
+
+### multikey press
+
+### Settings Change
+
+###
