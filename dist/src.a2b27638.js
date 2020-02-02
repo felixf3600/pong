@@ -196,6 +196,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.KEYS = exports.ENDING_POINT = exports.PADDLE_SPEED = exports.BALL_RADIUS = exports.PADDLE_GAP = exports.PADDLE_HEIGHT = exports.PADDLE_WIDTH = exports.GAME_HEIGHT = exports.GAME_WIDTH = exports.SVG_NS = void 0;
+// these are the global settings of the game.
 var SVG_NS = "http://www.w3.org/2000/svg";
 exports.SVG_NS = SVG_NS;
 var GAME_WIDTH = 512;
@@ -220,9 +221,12 @@ var KEYS = {
   playerTwoUp: "ArrowUp",
   playerTwoDown: "ArrowDown",
   pause: " ",
+  exit: "Escape",
+  // these last 4 are for future expansions to use buttons to create balls and to use buttons to shoot
   createBall1: "Tab",
   createBall2: "Enter",
-  exit: "Escape"
+  playerOneShoot: "d",
+  playerTwoShoot: "/"
 };
 exports.KEYS = KEYS;
 },{}],"src/partials/Board.js":[function(require,module,exports) {
@@ -315,7 +319,8 @@ function () {
     this.y = y;
     this.score = 0;
     this.speed = speed;
-  }
+  } // checks to see if the paddle moves up and then calls function to check and move paddle position x
+
 
   _createClass(Paddle, [{
     key: "checkMovePaddle",
@@ -327,12 +332,14 @@ function () {
       if (down) {
         this.movePaddle(this.speed);
       }
-    }
+    } // returns the score of the paddle calling it
+
   }, {
     key: "getScore",
     value: function getScore() {
       return this.score;
-    }
+    } //returns the position of each side of the paddle
+
   }, {
     key: "getPaddlePosition",
     value: function getPaddlePosition() {
@@ -343,12 +350,14 @@ function () {
         right: this.x + this.width
       };
       return postion;
-    }
+    } //adds to the paddle score that called it.
+
   }, {
     key: "paddleScore",
     value: function paddleScore() {
       this.score++;
-    }
+    } // checks to see if the paddle can move to the next position. if allowed then it changes its location by the speed
+
   }, {
     key: "movePaddle",
     value: function movePaddle(speed) {
@@ -358,7 +367,8 @@ function () {
       if (nextSpace >= 0 && maxBottom <= this.boardHeight) {
         this.y = nextSpace;
       }
-    }
+    } // does the rendering of the paddles by first checking if the paddle moved and then redrwaing the paddle.
+
   }, {
     key: "render",
     value: function render(svg, up, down) {
@@ -543,12 +553,12 @@ function () {
     this.x = x;
     this.y = y;
     this.size = size;
-  }
+  } //this renders the score in the middle top of the board.
+
 
   _createClass(Score, [{
     key: "render",
-    value: function render(svg, score //this renders the score in the middle top of the board.
-    ) {
+    value: function render(svg, score) {
       var scoreSvg = document.createElementNS(_settings.SVG_NS, "text");
       scoreSvg.setAttributeNS(null, "x", this.x);
       scoreSvg.setAttributeNS(null, "y", this.y);
@@ -589,10 +599,14 @@ function () {
     this.player1Up = false;
     this.player1Down = false;
     this.player2Up = false;
-    this.player2Down = false;
-    this.extraball1 = false;
-    this.extraball2 = false;
-  }
+    this.player2Down = false; //these are if I want to add a button to add balls
+    // this.extraball1 = false;
+    // this.extraball2 = false;
+    //these are if I want to add buttons to shoot from paddles.
+    // this.player1shoot = false;
+    // this.player2shoot = false;
+  } // checks what keys were pressed and passes them down to a boolean variable for easy handling
+
 
   _createClass(KeySettings, [{
     key: "getKeyesPressed",
@@ -682,16 +696,10 @@ function () {
     this.score1 = new _score.default(_settings.GAME_WIDTH / 2 - 50, 30, 30);
     this.score2 = new _score.default(_settings.GAME_WIDTH / 2 + 25, 30, 30);
     this.ball1 = new _Ball.default(_settings.BALL_RADIUS, _settings.GAME_WIDTH, _settings.GAME_HEIGHT);
-    this.activeKeys = new _keyboard.default(); // document.addEventListener("keydown", event => {
-    //   if (event.key === " ") {
-    //     this.pause = !this.pause;
-    //   }
-    // });
-
+    this.activeKeys = new _keyboard.default();
     this.keyPressed = {};
     document.addEventListener("keydown", function (event) {
       _this.keyPressed[event.key] = true;
-      console.log(_this.keyPressed);
     }, false);
     document.addEventListener("keyup", function (event) {
       _this.keyPressed[event.key] = false;
@@ -785,15 +793,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 // create a game instance
 var game = new _Game.default("game", _settings.GAME_WIDTH, _settings.GAME_HEIGHT);
-var myId;
+var myId; //gameloop for the game
 
 (function gameLoop() {
-  //gameloop for the game
   if (game.activeKeys.exit == false) {
     game.render();
     myId = requestAnimationFrame(gameLoop);
   } else {
-    cancelAnimationFrame(myId);
+    cancelAnimationFrame(myId); //calls the end of the loop
   }
 })();
 },{"./styles/game.css":"src/styles/game.css","./partials/Game":"src/partials/Game.js","./settings":"src/settings.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {

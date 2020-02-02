@@ -9,6 +9,8 @@ export default class Paddle {
     this.score = 0;
     this.speed = speed;
   }
+
+  // checks to see if the paddle moves up and then calls function to check and move paddle position x
   checkMovePaddle(up, down) {
     if (up) {
       this.movePaddle(-this.speed);
@@ -17,9 +19,13 @@ export default class Paddle {
       this.movePaddle(this.speed);
     }
   }
+
+  // returns the score of the paddle calling it
   getScore() {
     return this.score;
   }
+
+  //returns the position of each side of the paddle
   getPaddlePosition() {
     const postion = {
       top: this.y,
@@ -29,10 +35,12 @@ export default class Paddle {
     };
     return postion;
   }
-
+  //adds to the paddle score that called it.
   paddleScore() {
     this.score++;
   }
+
+  // checks to see if the paddle can move to the next position. if allowed then it changes its location by the speed
   movePaddle(speed) {
     const nextSpace = this.y + speed;
     const maxBottom = nextSpace + this.height;
@@ -40,7 +48,7 @@ export default class Paddle {
       this.y = nextSpace;
     }
   }
-
+  // does the rendering of the paddles by first checking if the paddle moved and then redrwaing the paddle.
   render(svg, up, down) {
     this.checkMovePaddle(up, down);
     const paddleSvg = document.createElementNS(SVG_NS, "rect");

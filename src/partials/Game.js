@@ -44,18 +44,11 @@ export default class Game {
     this.score2 = new Score(GAME_WIDTH / 2 + 25, 30, 30);
     this.ball1 = new Ball(BALL_RADIUS, GAME_WIDTH, GAME_HEIGHT);
     this.activeKeys = new KeySettings();
-    // document.addEventListener("keydown", event => {
-    //   if (event.key === " ") {
-    //     this.pause = !this.pause;
-    //   }
-    // });
-
     this.keyPressed = {};
     document.addEventListener(
       "keydown",
       event => {
         this.keyPressed[event.key] = true;
-        console.log(this.keyPressed);
       },
       false
     );

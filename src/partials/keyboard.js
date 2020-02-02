@@ -6,10 +6,14 @@ export default class KeySettings {
     this.player1Down = false;
     this.player2Up = false;
     this.player2Down = false;
-    this.extraball1 = false;
-    this.extraball2 = false;
+    //these are if I want to add a button to add balls
+    // this.extraball1 = false;
+    // this.extraball2 = false;
+    //these are if I want to add buttons to shoot from paddles.
+    // this.player1shoot = false;
+    // this.player2shoot = false;
   }
-
+  // checks what keys were pressed and passes them down to a boolean variable for easy handling
   getKeyesPressed(pressed, setting) {
     if (pressed[setting.pause] === true) {
       this.pause = !this.pause;

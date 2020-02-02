@@ -40,7 +40,7 @@ Once you have done this, you can run:
 
 Now check out your deployed site 🙂
 
-## Game Notes
+### ######################################## Game Notes
 
 ### Player Advantage
 
@@ -56,6 +56,22 @@ displays an announcement of who the winner is and the final scores. all in red.
 
 ### multikey press
 
+multikey puts keyspressed in an object that is used to to turn on and off variables for easy haterndling. these variables will get checked to move the paddles, pause the game, end the game. multiballs and shooting are implemented so once coded the keys will work.
+
+### multiball thru buttons
+
+### multiball thru time
+
+### paddle shooting
+
+### bullet collision
+
+### Canceling game screen
+
 ### Settings Change
 
-###
+### ################################ Developer Diary
+
+After doing the code along and thus getting everything going at base level, I left the programming for the weekend. The next day I encountered issues with the program that I tryed to resolve but anything I did resulted in nothing chaging; even after making drastic changes. After cheking the sources in chrome inspector I realized that chrome was not updating the source files; every change I made was not taking effect. I ended up reaching to staff but I was able to get it going with a reboot before Anvit got back to me. Sadly this set me back an hour and a bit.
+
+I am still making a few spelling or cap errors that are setting me back a bit of time. I tried tweaking the paddles a bit and ended up putting a capital letter in one of them by mistake... sigh..
