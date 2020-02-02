@@ -1,6 +1,6 @@
 import { SVG_NS } from "../settings";
 export default class Paddle {
-  constructor(boardHeight, width, height, x, y, keyUp, KeyDown, speed) {
+  constructor(boardHeight, width, height, x, y, speed) {
     this.boardHeight = boardHeight;
     this.width = width;
     this.height = height;
@@ -8,21 +8,15 @@ export default class Paddle {
     this.y = y;
     this.score = 0;
     this.speed = speed;
-    document.addEventListener("keydown", event => {
-      // console.log(event.key);
-      switch (event.key) {
-        case keyUp:
-          this.movePaddle(-this.speed);
-          break;
-        case KeyDown:
-          this.movePaddle(this.speed);
-          break;
-        // default:
-        //   break;
-      }
-    });
   }
-
+  checkMovePaddle(up, down) {
+    if (up) {
+      this.movePaddle(-this.speed);
+    }
+    if (down) {
+      this.movePaddle(this.speed);
+    }
+  }
   getScore() {
     return this.score;
   }
@@ -47,7 +41,8 @@ export default class Paddle {
     }
   }
 
-  render(svg) {
+  render(svg, up, down) {
+    this.checkMovePaddle(up, down);
     const paddleSvg = document.createElementNS(SVG_NS, "rect");
     paddleSvg.setAttributeNS(null, "x", this.x);
     paddleSvg.setAttributeNS(null, "y", this.y);

@@ -6,10 +6,7 @@ import {
   PADDLE_GAP,
   PADDLE_WIDTH,
   BALL_RADIUS,
-  PLAYER_ONE_DOWN,
-  PLAYER_ONE_UP,
-  PLAYER_TWO_DOWN,
-  PLAYER_TWO_UP,
+  KEYS,
   PADDLE_SPEED,
   ENDING_POINT
 } from "../settings";
@@ -17,6 +14,7 @@ import Board from "./Board";
 import Paddle from "./Paddle";
 import Ball from "./Ball";
 import Score from "./score";
+import KeySettings from "./keyboard";
 
 export default class Game {
   constructor(element) {
@@ -28,8 +26,8 @@ export default class Game {
       PADDLE_HEIGHT,
       PADDLE_GAP,
       (GAME_HEIGHT - PADDLE_HEIGHT) / 2,
-      PLAYER_ONE_UP,
-      PLAYER_ONE_DOWN,
+      // KEYS.playerOneUp,
+      // KEYS.playerOneDown,
       PADDLE_SPEED
     );
     this.paddle2 = new Paddle(
@@ -38,19 +36,37 @@ export default class Game {
       PADDLE_HEIGHT,
       GAME_WIDTH - PADDLE_WIDTH - PADDLE_GAP,
       (GAME_HEIGHT - PADDLE_HEIGHT) / 2,
-      PLAYER_TWO_UP,
-      PLAYER_TWO_DOWN,
+      // KEYS.playerTwoUp,
+      // KEYS.playerTwoUp,
       PADDLE_SPEED
     );
-    this.pause = false;
     this.score1 = new Score(GAME_WIDTH / 2 - 50, 30, 30);
     this.score2 = new Score(GAME_WIDTH / 2 + 25, 30, 30);
     this.ball1 = new Ball(BALL_RADIUS, GAME_WIDTH, GAME_HEIGHT);
-    document.addEventListener("keydown", event => {
-      if (event.key === " ") {
-        this.pause = !this.pause;
-      }
-    });
+    this.activeKeys = new KeySettings();
+    // document.addEventListener("keydown", event => {
+    //   if (event.key === " ") {
+    //     this.pause = !this.pause;
+    //   }
+    // });
+
+    this.keyPressed = {};
+    document.addEventListener(
+      "keydown",
+      event => {
+        this.keyPressed[event.key] = true;
+        console.log(this.keyPressed);
+      },
+      false
+    );
+    document.addEventListener(
+      "keyup",
+      event => {
+        this.keyPressed[event.key] = false;
+        console.log(this.keyPressed);
+      },
+      false
+    );
   }
   resetScreen(svg) {
     svg.setAttributeNS(null, "width", GAME_WIDTH);
@@ -59,8 +75,6 @@ export default class Game {
     this.gameElement.appendChild(svg);
   }
 
-  // <!-- <text x="50" y="50" text-anchor="middle">SVG</text> -->
-
   displayEndingScore(svg, playerScore1, playerScore2) {
     let winner = "";
     if (playerScore1 < playerScore2) {
@@ -68,7 +82,6 @@ export default class Game {
     } else {
       winner = "PLAYER 1";
     }
-    console.log(winner);
     const finalSvg = document.createElementNS(SVG_NS, "text");
     const secondLine = document.createElementNS(SVG_NS, "text");
     finalSvg.setAttributeNS(null, "x", 80);
@@ -77,7 +90,6 @@ export default class Game {
     finalSvg.setAttributeNS(null, "font-size", 30);
     finalSvg.setAttributeNS(null, "font-family", "'Silkscreen Web', monotype");
     finalSvg.setAttributeNS(null, "fill", "red");
-    console.log(finalSvg);
     svg.appendChild(finalSvg);
     secondLine.setAttributeNS(null, "x", 150);
     secondLine.setAttributeNS(null, "y", 150);
@@ -90,20 +102,28 @@ export default class Game {
     );
     secondLine.setAttributeNS(null, "fill", "red");
     svg.appendChild(secondLine);
-    console.log(secondLine);
   }
   render() {
     let svg = document.createElementNS(SVG_NS, "svg");
+    this.activeKeys.getKeyesPressed(this.keyPressed, KEYS);
 
     if (
       this.paddle1.score < ENDING_POINT &&
       this.paddle2.score < ENDING_POINT
     ) {
-      if (this.pause !== false) {
+      if (this.activeKeys.pause !== false) {
         this.gameElement.innerHTML = "";
         this.board.render(svg);
-        this.paddle1.render(svg);
-        this.paddle2.render(svg);
+        this.paddle1.render(
+          svg,
+          this.activeKeys.player1Up,
+          this.activeKeys.player1Down
+        );
+        this.paddle2.render(
+          svg,
+          this.activeKeys.player2Up,
+          this.activeKeys.player2Down
+        );
         this.ball1.render(svg, this.paddle1, this.paddle2);
         this.score1.render(svg, this.paddle1.getScore());
         this.score2.render(svg, this.paddle2.getScore());
@@ -112,8 +132,16 @@ export default class Game {
     } else {
       this.gameElement.innerHTML = "";
       this.board.render(svg);
-      this.paddle1.render(svg);
-      this.paddle2.render(svg);
+      this.paddle1.render(
+        svg,
+        this.activeKeys.player1Up,
+        this.activeKeys.player1Down
+      );
+      this.paddle2.render(
+        svg,
+        this.activeKeys.player2Up,
+        this.activeKeys.player2Down
+      );
       this.displayEndingScore(svg, this.paddle1.score, this.paddle2.score);
       this.resetScreen(svg);
       console.log(svg);
@@ -121,3 +149,6 @@ export default class Game {
   }
   // More code goes here....
 }
+// document.addEventListener("keydown", event => {
+//   console.log(event);
+// });

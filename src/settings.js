@@ -5,9 +5,15 @@ export const PADDLE_WIDTH = 8;
 export const PADDLE_HEIGHT = 56;
 export const PADDLE_GAP = 10;
 export const BALL_RADIUS = 10;
-export const PLAYER_ONE_UP = "a";
-export const PLAYER_ONE_DOWN = "z";
-export const PLAYER_TWO_UP = "ArrowUp";
-export const PLAYER_TWO_DOWN = "ArrowDown";
 export const PADDLE_SPEED = 10;
-export const ENDING_POINT = 1;
+export const ENDING_POINT = 10;
+export const KEYS = {
+  playerOneUp: "a",
+  playerOneDown: "z",
+  playerTwoUp: "ArrowUp",
+  playerTwoDown: "ArrowDown",
+  pause: " ",
+  createBall1: "Tab",
+  createBall2: "Enter",
+  exit: "Escape"
+};

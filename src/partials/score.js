@@ -6,9 +6,11 @@ export default class Score {
     this.y = y;
     this.size = size;
   }
-  // <!-- <text x="50" y="50" text-anchor="middle">SVG</text> -->
 
-  render(svg, score) {
+  render(
+    svg,
+    score //this renders the score in the middle top of the board.
+  ) {
     const scoreSvg = document.createElementNS(SVG_NS, "text");
     scoreSvg.setAttributeNS(null, "x", this.x);
     scoreSvg.setAttributeNS(null, "y", this.y);
