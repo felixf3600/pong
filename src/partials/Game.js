@@ -26,8 +26,6 @@ export default class Game {
       PADDLE_HEIGHT,
       PADDLE_GAP,
       (GAME_HEIGHT - PADDLE_HEIGHT) / 2,
-      // KEYS.playerOneUp,
-      // KEYS.playerOneDown,
       PADDLE_SPEED
     );
     this.paddle2 = new Paddle(
@@ -36,15 +34,16 @@ export default class Game {
       PADDLE_HEIGHT,
       GAME_WIDTH - PADDLE_WIDTH - PADDLE_GAP,
       (GAME_HEIGHT - PADDLE_HEIGHT) / 2,
-      // KEYS.playerTwoUp,
-      // KEYS.playerTwoUp,
       PADDLE_SPEED
     );
     this.score1 = new Score(GAME_WIDTH / 2 - 50, 30, 30);
     this.score2 = new Score(GAME_WIDTH / 2 + 25, 30, 30);
     this.ball1 = new Ball(BALL_RADIUS, GAME_WIDTH, GAME_HEIGHT);
+    // variable containing the true/false variables for the game
     this.activeKeys = new KeySettings();
-    this.keyPressed = {};
+    // array that contains the keys that are pressed
+    this.keyPressed = {}; //
+    //event listener that will check
     document.addEventListener(
       "keydown",
       event => {
@@ -61,13 +60,43 @@ export default class Game {
       false
     );
   }
+
+  // this is the set attributes of SVG
   resetScreen(svg) {
     svg.setAttributeNS(null, "width", GAME_WIDTH);
     svg.setAttributeNS(null, "height", GAME_HEIGHT);
     svg.setAttributeNS(null, "viewBox", `0 0 ${GAME_WIDTH} ${GAME_HEIGHT}`);
     this.gameElement.appendChild(svg);
   }
-
+  // this renders the quit screen if someone presses the ESC key
+  renderQuitScreen() {
+    this.gameElement.innerHTML = "";
+    let svg = document.createElementNS(SVG_NS, "svg");
+    const finalSvg = document.createElementNS(SVG_NS, "text");
+    const secondLine = document.createElementNS(SVG_NS, "text");
+    this.board.render(svg);
+    // sets the texts
+    finalSvg.setAttributeNS(null, "x", 80);
+    finalSvg.setAttributeNS(null, "y", 100);
+    finalSvg.textContent = "YOU QUIT?!?!?!";
+    finalSvg.setAttributeNS(null, "font-size", 30);
+    finalSvg.setAttributeNS(null, "font-family", "'Silkscreen Web', monotype");
+    finalSvg.setAttributeNS(null, "fill", "red");
+    svg.appendChild(finalSvg);
+    secondLine.setAttributeNS(null, "x", 80);
+    secondLine.setAttributeNS(null, "y", 150);
+    secondLine.textContent = " REFRESH TO RESTART ";
+    secondLine.setAttributeNS(null, "font-size", 30);
+    secondLine.setAttributeNS(
+      null,
+      "font-family",
+      "'Silkscreen Web', monotype"
+    );
+    secondLine.setAttributeNS(null, "fill", "red");
+    svg.appendChild(secondLine);
+    this.resetScreen(svg);
+  }
+  //this function will display the ending score.
   displayEndingScore(svg, playerScore1, playerScore2) {
     let winner = "";
     if (playerScore1 < playerScore2) {
@@ -96,10 +125,11 @@ export default class Game {
     secondLine.setAttributeNS(null, "fill", "red");
     svg.appendChild(secondLine);
   }
+  //the main render program.
   render() {
     let svg = document.createElementNS(SVG_NS, "svg");
     this.activeKeys.getKeyesPressed(this.keyPressed, KEYS);
-
+    //checks to see if any one won
     if (
       this.paddle1.score < ENDING_POINT &&
       this.paddle2.score < ENDING_POINT
@@ -140,8 +170,4 @@ export default class Game {
       console.log(svg);
     }
   }
-  // More code goes here....
 }
-// document.addEventListener("keydown", event => {
-//   console.log(event);
-// });

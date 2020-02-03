@@ -12,5 +12,6 @@ let myId;
     myId = requestAnimationFrame(gameLoop);
   } else {
     cancelAnimationFrame(myId); //calls the end of the loop
+    game.renderQuitScreen();
   }
 })();

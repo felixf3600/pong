@@ -687,17 +687,17 @@ function () {
 
     this.gameElement = document.getElementById(element);
     this.board = new _Board.default(_settings.GAME_WIDTH, _settings.GAME_HEIGHT);
-    this.paddle1 = new _Paddle.default(_settings.GAME_HEIGHT, _settings.PADDLE_WIDTH, _settings.PADDLE_HEIGHT, _settings.PADDLE_GAP, (_settings.GAME_HEIGHT - _settings.PADDLE_HEIGHT) / 2, // KEYS.playerOneUp,
-    // KEYS.playerOneDown,
-    _settings.PADDLE_SPEED);
-    this.paddle2 = new _Paddle.default(_settings.GAME_HEIGHT, _settings.PADDLE_WIDTH, _settings.PADDLE_HEIGHT, _settings.GAME_WIDTH - _settings.PADDLE_WIDTH - _settings.PADDLE_GAP, (_settings.GAME_HEIGHT - _settings.PADDLE_HEIGHT) / 2, // KEYS.playerTwoUp,
-    // KEYS.playerTwoUp,
-    _settings.PADDLE_SPEED);
+    this.paddle1 = new _Paddle.default(_settings.GAME_HEIGHT, _settings.PADDLE_WIDTH, _settings.PADDLE_HEIGHT, _settings.PADDLE_GAP, (_settings.GAME_HEIGHT - _settings.PADDLE_HEIGHT) / 2, _settings.PADDLE_SPEED);
+    this.paddle2 = new _Paddle.default(_settings.GAME_HEIGHT, _settings.PADDLE_WIDTH, _settings.PADDLE_HEIGHT, _settings.GAME_WIDTH - _settings.PADDLE_WIDTH - _settings.PADDLE_GAP, (_settings.GAME_HEIGHT - _settings.PADDLE_HEIGHT) / 2, _settings.PADDLE_SPEED);
     this.score1 = new _score.default(_settings.GAME_WIDTH / 2 - 50, 30, 30);
     this.score2 = new _score.default(_settings.GAME_WIDTH / 2 + 25, 30, 30);
-    this.ball1 = new _Ball.default(_settings.BALL_RADIUS, _settings.GAME_WIDTH, _settings.GAME_HEIGHT);
-    this.activeKeys = new _keyboard.default();
-    this.keyPressed = {};
+    this.ball1 = new _Ball.default(_settings.BALL_RADIUS, _settings.GAME_WIDTH, _settings.GAME_HEIGHT); // variable containing the true/false variables for the game
+
+    this.activeKeys = new _keyboard.default(); // array that contains the keys that are pressed
+
+    this.keyPressed = {}; //
+    //event listener that will check
+
     document.addEventListener("keydown", function (event) {
       _this.keyPressed[event.key] = true;
     }, false);
@@ -705,7 +705,8 @@ function () {
       _this.keyPressed[event.key] = false;
       console.log(_this.keyPressed);
     }, false);
-  }
+  } // this is the set attributes of SVG
+
 
   _createClass(Game, [{
     key: "resetScreen",
@@ -714,7 +715,34 @@ function () {
       svg.setAttributeNS(null, "height", _settings.GAME_HEIGHT);
       svg.setAttributeNS(null, "viewBox", "0 0 ".concat(_settings.GAME_WIDTH, " ").concat(_settings.GAME_HEIGHT));
       this.gameElement.appendChild(svg);
-    }
+    } // this renders the quit screen if someone presses the ESC key
+
+  }, {
+    key: "renderQuitScreen",
+    value: function renderQuitScreen() {
+      this.gameElement.innerHTML = "";
+      var svg = document.createElementNS(_settings.SVG_NS, "svg");
+      var finalSvg = document.createElementNS(_settings.SVG_NS, "text");
+      var secondLine = document.createElementNS(_settings.SVG_NS, "text");
+      this.board.render(svg); // sets the texts
+
+      finalSvg.setAttributeNS(null, "x", 80);
+      finalSvg.setAttributeNS(null, "y", 100);
+      finalSvg.textContent = "YOU QUIT?!?!?!";
+      finalSvg.setAttributeNS(null, "font-size", 30);
+      finalSvg.setAttributeNS(null, "font-family", "'Silkscreen Web', monotype");
+      finalSvg.setAttributeNS(null, "fill", "red");
+      svg.appendChild(finalSvg);
+      secondLine.setAttributeNS(null, "x", 80);
+      secondLine.setAttributeNS(null, "y", 150);
+      secondLine.textContent = " REFRESH TO RESTART ";
+      secondLine.setAttributeNS(null, "font-size", 30);
+      secondLine.setAttributeNS(null, "font-family", "'Silkscreen Web', monotype");
+      secondLine.setAttributeNS(null, "fill", "red");
+      svg.appendChild(secondLine);
+      this.resetScreen(svg);
+    } //this function will display the ending score.
+
   }, {
     key: "displayEndingScore",
     value: function displayEndingScore(svg, playerScore1, playerScore2) {
@@ -742,12 +770,13 @@ function () {
       secondLine.setAttributeNS(null, "font-family", "'Silkscreen Web', monotype");
       secondLine.setAttributeNS(null, "fill", "red");
       svg.appendChild(secondLine);
-    }
+    } //the main render program.
+
   }, {
     key: "render",
     value: function render() {
       var svg = document.createElementNS(_settings.SVG_NS, "svg");
-      this.activeKeys.getKeyesPressed(this.keyPressed, _settings.KEYS);
+      this.activeKeys.getKeyesPressed(this.keyPressed, _settings.KEYS); //checks to see if any one won
 
       if (this.paddle1.score < _settings.ENDING_POINT && this.paddle2.score < _settings.ENDING_POINT) {
         if (this.activeKeys.pause !== false) {
@@ -769,15 +798,11 @@ function () {
         this.resetScreen(svg);
         console.log(svg);
       }
-    } // More code goes here....
-
+    }
   }]);
 
   return Game;
-}(); // document.addEventListener("keydown", event => {
-//   console.log(event);
-// });
-
+}();
 
 exports.default = Game;
 },{"../settings":"src/settings.js","./Board":"src/partials/Board.js","./Paddle":"src/partials/Paddle.js","./Ball":"src/partials/Ball.js","./score":"src/partials/score.js","./keyboard":"src/partials/keyboard.js"}],"src/index.js":[function(require,module,exports) {
@@ -801,6 +826,8 @@ var myId; //gameloop for the game
     myId = requestAnimationFrame(gameLoop);
   } else {
     cancelAnimationFrame(myId); //calls the end of the loop
+
+    game.renderQuitScreen();
   }
 })();
 },{"./styles/game.css":"src/styles/game.css","./partials/Game":"src/partials/Game.js","./settings":"src/settings.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
@@ -831,7 +858,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49353" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49671" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

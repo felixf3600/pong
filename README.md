@@ -58,6 +58,10 @@ displays an announcement of who the winner is and the final scores. all in red.
 
 multikey puts keyspressed in an object that is used to to turn on and off variables for easy haterndling. these variables will get checked to move the paddles, pause the game, end the game. multiballs and shooting are implemented so once coded the keys will work.
 
+### Canceling game screen
+
+created a end screen with instrustions to refresh page in order to restart
+
 ### multiball thru buttons
 
 ### multiball thru time
@@ -65,8 +69,6 @@ multikey puts keyspressed in an object that is used to to turn on and off variab
 ### paddle shooting
 
 ### bullet collision
-
-### Canceling game screen
 
 ### Settings Change
 
