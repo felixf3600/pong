@@ -15,9 +15,9 @@ export default class KeySettings {
   }
   // checks what keys were pressed and passes them down to a boolean variable for easy handling
   getKeyesPressed(pressed, setting) {
-    if (pressed[setting.pause] === true) {
-      this.pause = !this.pause;
-    }
+    // if (pressed[setting.pause] === true) {
+    //   this.pause = !this.pause;
+    // }
     if (pressed[setting.playerOneDown] === true) {
       this.player1Down = true;
     } else {

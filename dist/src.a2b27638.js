@@ -611,10 +611,9 @@ function () {
   _createClass(KeySettings, [{
     key: "getKeyesPressed",
     value: function getKeyesPressed(pressed, setting) {
-      if (pressed[setting.pause] === true) {
-        this.pause = !this.pause;
-      }
-
+      // if (pressed[setting.pause] === true) {
+      //   this.pause = !this.pause;
+      // }
       if (pressed[setting.playerOneDown] === true) {
         this.player1Down = true;
       } else {
@@ -702,8 +701,13 @@ function () {
       _this.keyPressed[event.key] = true;
     }, false);
     document.addEventListener("keyup", function (event) {
-      _this.keyPressed[event.key] = false;
-      console.log(_this.keyPressed);
+      console.log(event.key);
+
+      if (event.key === " ") {
+        _this.activeKeys.pause = !_this.activeKeys.pause;
+      } else {
+        _this.keyPressed[event.key] = false;
+      }
     }, false);
   } // this is the set attributes of SVG
 
@@ -781,6 +785,7 @@ function () {
       if (this.paddle1.score < _settings.ENDING_POINT && this.paddle2.score < _settings.ENDING_POINT) {
         if (this.activeKeys.pause !== false) {
           this.gameElement.innerHTML = "";
+          console.log(this.activeKeys);
           this.board.render(svg);
           this.paddle1.render(svg, this.activeKeys.player1Up, this.activeKeys.player1Down);
           this.paddle2.render(svg, this.activeKeys.player2Up, this.activeKeys.player2Down);
@@ -858,7 +863,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49671" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60425" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

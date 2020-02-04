@@ -54,8 +54,12 @@ export default class Game {
     document.addEventListener(
       "keyup",
       event => {
-        this.keyPressed[event.key] = false;
-        console.log(this.keyPressed);
+        console.log(event.key);
+        if (event.key === " ") {
+          this.activeKeys.pause = !this.activeKeys.pause;
+        } else {
+          this.keyPressed[event.key] = false;
+        }
       },
       false
     );
@@ -136,6 +140,8 @@ export default class Game {
     ) {
       if (this.activeKeys.pause !== false) {
         this.gameElement.innerHTML = "";
+        console.log(this.activeKeys);
+
         this.board.render(svg);
         this.paddle1.render(
           svg,
