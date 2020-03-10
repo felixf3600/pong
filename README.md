@@ -44,7 +44,7 @@ Now check out your deployed site 🙂
 
 ### Player Advantage
 
-The ball will be sent to the higher scoring player until this player gets passed
+Advantage is random.
 
 ### Game End
 
@@ -62,11 +62,11 @@ multikey puts keyspressed in an object that is used to to turn on and off variab
 
 created a end screen with instrustions to refresh page in order to restart
 
-### multiball thru buttons
+### multiball thru scoring
 
-### multiball thru time
+balls will increase with every time the total score hits a multiple of 5.
 
-### paddle shooting
+### ball collision
 
 ### bullet collision
 

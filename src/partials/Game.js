@@ -38,11 +38,14 @@ export default class Game {
     );
     this.score1 = new Score(GAME_WIDTH / 2 - 50, 30, 30);
     this.score2 = new Score(GAME_WIDTH / 2 + 25, 30, 30);
-    this.ball1 = new Ball(BALL_RADIUS, GAME_WIDTH, GAME_HEIGHT);
+    let ball = new Ball(BALL_RADIUS, GAME_WIDTH, GAME_HEIGHT);
+    this.balls = [];
+    this.balls[0] = ball;
     // variable containing the true/false variables for the game
     this.activeKeys = new KeySettings();
     // array that contains the keys that are pressed
     this.keyPressed = {}; //
+    this.roundEnd = false;
     //event listener that will check
     document.addEventListener(
       "keydown",
@@ -54,7 +57,6 @@ export default class Game {
     document.addEventListener(
       "keyup",
       event => {
-        console.log(event.key);
         if (event.key === " ") {
           this.activeKeys.pause = !this.activeKeys.pause;
         } else {
@@ -130,6 +132,20 @@ export default class Game {
     svg.appendChild(secondLine);
   }
   //the main render program.
+  increaseBalls() {
+    let score1 = this.paddle1.score;
+    let score2 = this.paddle2.score;
+    console.log(Math.floor((score1 + score2) / 5));
+    console.log(this.balls.length);
+    if (Math.floor((score1 + score2) / 5) >= this.balls.length) {
+      console.log("if");
+      let newBall = new Ball(BALL_RADIUS, GAME_WIDTH, GAME_HEIGHT);
+      this.balls.push(newBall);
+    } else {
+      console.log("else");
+    }
+  }
+
   render() {
     let svg = document.createElementNS(SVG_NS, "svg");
     this.activeKeys.getKeyesPressed(this.keyPressed, KEYS);
@@ -140,8 +156,6 @@ export default class Game {
     ) {
       if (this.activeKeys.pause !== false) {
         this.gameElement.innerHTML = "";
-        console.log(this.activeKeys);
-
         this.board.render(svg);
         this.paddle1.render(
           svg,
@@ -153,7 +167,23 @@ export default class Game {
           this.activeKeys.player2Up,
           this.activeKeys.player2Down
         );
-        this.ball1.render(svg, this.paddle1, this.paddle2);
+        if (this.roundEnd == false) {
+          this.balls.forEach(ball1 => {
+            this.roundEnd = ball1.render(
+              svg,
+              this.paddle1,
+              this.paddle2,
+              this.roundEnd,
+              this.balls
+            );
+          });
+        } else {
+          this.balls.forEach(ball1 => {
+            ball1.reset();
+          });
+          this.increaseBalls();
+          this.roundEnd = false;
+        }
         this.score1.render(svg, this.paddle1.getScore());
         this.score2.render(svg, this.paddle2.getScore());
         this.resetScreen(svg);
@@ -173,7 +203,6 @@ export default class Game {
       );
       this.displayEndingScore(svg, this.paddle1.score, this.paddle2.score);
       this.resetScreen(svg);
-      console.log(svg);
     }
   }
 }

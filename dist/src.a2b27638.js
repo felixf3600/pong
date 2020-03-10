@@ -387,8 +387,8 @@ function () {
 }();
 
 exports.default = Paddle;
-},{"../settings":"src/settings.js"}],"public/sounds/pong-01.wav":[function(require,module,exports) {
-module.exports = "/pong-01.274dcf0a.wav";
+},{"../settings":"src/settings.js"}],"public/sounds/pong-02.wav":[function(require,module,exports) {
+module.exports = "/pong-02.da6e8897.wav";
 },{}],"src/partials/Ball.js":[function(require,module,exports) {
 "use strict";
 
@@ -399,7 +399,7 @@ exports.default = void 0;
 
 var _settings = require("../settings");
 
-var _pong = _interopRequireDefault(require("../../public/sounds/pong-01.wav"));
+var _pong = _interopRequireDefault(require("../../public/sounds/pong-02.wav"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -419,22 +419,26 @@ function () {
     this.boardHeight = boardHeight;
     this.speed = 10;
     this.radius = radius;
-    this.direction = 1;
+    this.determineDirection();
     this.reset();
     this.pingsound = new Audio(_pong.default);
   }
 
   _createClass(Ball, [{
-    key: "changeDirection",
-    value: function changeDirection(player1, player2) {
-      var scoreOne = player1.getScore();
-      var scoreTwo = player2.getScore();
+    key: "determineDirection",
+    value: function determineDirection() {
+      var number = Math.ceil(Math.random() * 100);
 
-      if (scoreOne > scoreTwo) {
-        this.direction = Math.abs(this.direction) * -1;
-      } else if (scoreTwo > scoreOne) {
-        this.direction = Math.abs(this.direction);
+      if (number % 2 == 0) {
+        this.direction = 1;
+      } else {
+        this.direction = -1;
       }
+    }
+  }, {
+    key: "changeDirection",
+    value: function changeDirection() {
+      this.direction = this.direction * -1;
     }
   }, {
     key: "reset",
@@ -451,7 +455,7 @@ function () {
     }
   }, {
     key: "wallCollision",
-    value: function wallCollision() {
+    value: function wallCollision(roundEnd) {
       var ballLocation = {
         top: this.vy + this.y - this.radius,
         right: this.vx + this.x + this.radius,
@@ -460,29 +464,32 @@ function () {
       };
 
       if (ballLocation.bottom >= this.boardHeight || ballLocation.top < 0) {
-        this.vy = this.vy * -1;
-        this.pingsound;
+        this.vy = this.vy * -1; // this.pingsound.play();
       }
 
       if (ballLocation.right >= this.boardWidth || ballLocation.left < 0) {
-        this.reset();
+        roundEnd = true;
       }
+
+      return roundEnd;
     }
   }, {
     key: "detectCollision",
-    value: function detectCollision(position, position2, score) {
+    value: function detectCollision(position, position2, score, roundEnd) {
       if (position.left < position2.right) {
         if (position.bottom >= position2.top && position.top <= position2.bottom) {
-          this.vx = this.vx * -1;
+          this.vx = this.vx * -1; // this.pingsound.play();
         } else {
           score.paddleScore();
-          this.reset();
+          roundEnd = true;
         }
       }
+
+      return roundEnd;
     }
   }, {
     key: "paddleCollision",
-    value: function paddleCollision(paddle1, paddle2) {
+    value: function paddleCollision(paddle1, paddle2, roundEnd) {
       var ballPosition = {
         center: this.y + this.vy + this.vy,
         top: this.y + this.vy - this.radius,
@@ -494,14 +501,15 @@ function () {
       var playerTwo = paddle2.getPaddlePosition();
 
       if (this.vx < 0) {
-        this.detectCollision(ballPosition, playerOne, paddle2);
+        roundEnd = this.detectCollision(ballPosition, playerOne, paddle2, roundEnd);
       } else {
         playerTwo.right = playerTwo.left;
         ballPosition.left = ballPosition.right;
-        this.detectCollision(playerTwo, ballPosition, paddle1);
+        roundEnd = this.detectCollision(playerTwo, ballPosition, paddle1, roundEnd);
       }
 
-      this.changeDirection(paddle1, paddle2);
+      this.changeDirection();
+      return roundEnd;
     }
   }, {
     key: "ballMove",
@@ -511,16 +519,17 @@ function () {
     }
   }, {
     key: "render",
-    value: function render(svg, paddle1, paddle2) {
+    value: function render(svg, paddle1, paddle2, roundEnd) {
       var circleSvg = document.createElementNS(_settings.SVG_NS, "circle");
       circleSvg.setAttributeNS(null, "cx", this.x);
       circleSvg.setAttributeNS(null, "cy", this.y);
       circleSvg.setAttributeNS(null, "r", this.radius);
       circleSvg.setAttributeNS(null, "fill", "white");
       svg.appendChild(circleSvg);
-      this.wallCollision();
-      this.paddleCollision(paddle1, paddle2);
+      roundEnd = this.wallCollision(roundEnd);
+      roundEnd = this.paddleCollision(paddle1, paddle2, roundEnd);
       this.ballMove();
+      return roundEnd;
     }
   }]);
 
@@ -528,7 +537,7 @@ function () {
 }();
 
 exports.default = Ball;
-},{"../settings":"src/settings.js","../../public/sounds/pong-01.wav":"public/sounds/pong-01.wav"}],"src/partials/score.js":[function(require,module,exports) {
+},{"../settings":"src/settings.js","../../public/sounds/pong-02.wav":"public/sounds/pong-02.wav"}],"src/partials/score.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -690,19 +699,20 @@ function () {
     this.paddle2 = new _Paddle.default(_settings.GAME_HEIGHT, _settings.PADDLE_WIDTH, _settings.PADDLE_HEIGHT, _settings.GAME_WIDTH - _settings.PADDLE_WIDTH - _settings.PADDLE_GAP, (_settings.GAME_HEIGHT - _settings.PADDLE_HEIGHT) / 2, _settings.PADDLE_SPEED);
     this.score1 = new _score.default(_settings.GAME_WIDTH / 2 - 50, 30, 30);
     this.score2 = new _score.default(_settings.GAME_WIDTH / 2 + 25, 30, 30);
-    this.ball1 = new _Ball.default(_settings.BALL_RADIUS, _settings.GAME_WIDTH, _settings.GAME_HEIGHT); // variable containing the true/false variables for the game
+    var ball = new _Ball.default(_settings.BALL_RADIUS, _settings.GAME_WIDTH, _settings.GAME_HEIGHT);
+    this.balls = [];
+    this.balls[0] = ball; // variable containing the true/false variables for the game
 
     this.activeKeys = new _keyboard.default(); // array that contains the keys that are pressed
 
     this.keyPressed = {}; //
-    //event listener that will check
+
+    this.roundEnd = false; //event listener that will check
 
     document.addEventListener("keydown", function (event) {
       _this.keyPressed[event.key] = true;
     }, false);
     document.addEventListener("keyup", function (event) {
-      console.log(event.key);
-
       if (event.key === " ") {
         _this.activeKeys.pause = !_this.activeKeys.pause;
       } else {
@@ -777,19 +787,48 @@ function () {
     } //the main render program.
 
   }, {
+    key: "increaseBalls",
+    value: function increaseBalls() {
+      var score1 = this.paddle1.score;
+      var score2 = this.paddle2.score;
+      console.log(Math.floor((score1 + score2) / 5));
+      console.log(this.balls.length);
+
+      if (Math.floor((score1 + score2) / 5) >= this.balls.length) {
+        console.log("if");
+        var newBall = new _Ball.default(_settings.BALL_RADIUS, _settings.GAME_WIDTH, _settings.GAME_HEIGHT);
+        this.balls.push(newBall);
+      } else {
+        console.log("else");
+      }
+    }
+  }, {
     key: "render",
     value: function render() {
+      var _this2 = this;
+
       var svg = document.createElementNS(_settings.SVG_NS, "svg");
       this.activeKeys.getKeyesPressed(this.keyPressed, _settings.KEYS); //checks to see if any one won
 
       if (this.paddle1.score < _settings.ENDING_POINT && this.paddle2.score < _settings.ENDING_POINT) {
         if (this.activeKeys.pause !== false) {
           this.gameElement.innerHTML = "";
-          console.log(this.activeKeys);
           this.board.render(svg);
           this.paddle1.render(svg, this.activeKeys.player1Up, this.activeKeys.player1Down);
           this.paddle2.render(svg, this.activeKeys.player2Up, this.activeKeys.player2Down);
-          this.ball1.render(svg, this.paddle1, this.paddle2);
+
+          if (this.roundEnd == false) {
+            this.balls.forEach(function (ball1) {
+              _this2.roundEnd = ball1.render(svg, _this2.paddle1, _this2.paddle2, _this2.roundEnd, _this2.balls);
+            });
+          } else {
+            this.balls.forEach(function (ball1) {
+              ball1.reset();
+            });
+            this.increaseBalls();
+            this.roundEnd = false;
+          }
+
           this.score1.render(svg, this.paddle1.getScore());
           this.score2.render(svg, this.paddle2.getScore());
           this.resetScreen(svg);
@@ -801,7 +840,6 @@ function () {
         this.paddle2.render(svg, this.activeKeys.player2Up, this.activeKeys.player2Down);
         this.displayEndingScore(svg, this.paddle1.score, this.paddle2.score);
         this.resetScreen(svg);
-        console.log(svg);
       }
     }
   }]);
@@ -863,7 +901,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60425" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63790" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
