@@ -135,14 +135,9 @@ export default class Game {
   increaseBalls() {
     let score1 = this.paddle1.score;
     let score2 = this.paddle2.score;
-    console.log(Math.floor((score1 + score2) / 5));
-    console.log(this.balls.length);
     if (Math.floor((score1 + score2) / 5) >= this.balls.length) {
-      console.log("if");
       let newBall = new Ball(BALL_RADIUS, GAME_WIDTH, GAME_HEIGHT);
       this.balls.push(newBall);
-    } else {
-      console.log("else");
     }
   }
 
@@ -178,8 +173,10 @@ export default class Game {
             );
           });
         } else {
+          let counter = 0;
           this.balls.forEach(ball1 => {
-            ball1.reset();
+            ball1.reset(/*counter*/);
+            counter++;
           });
           this.increaseBalls();
           this.roundEnd = false;

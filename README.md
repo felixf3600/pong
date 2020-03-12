@@ -68,6 +68,12 @@ balls will increase with every time the total score hits a multiple of 5.
 
 ### ball collision
 
+work in progress.. code in place but there is a memory leak. comming soon
+
+### prompt to press spacebar to start.
+
+added instructions to the game.
+
 ### bullet collision
 
 ### Settings Change

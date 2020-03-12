@@ -417,12 +417,46 @@ function () {
 
     this.boardWidth = boardWidth;
     this.boardHeight = boardHeight;
-    this.speed = 10;
+    this.speed = 6;
     this.radius = radius;
     this.determineDirection();
     this.reset();
     this.pingsound = new Audio(_pong.default);
-  }
+  } // the action is creating some sort of a leak once the 3rd ball comes in. no matter what. put away for later implementation.
+  // ballCollision(ballArray) {
+  //   let currentBallTop = this.y - this.radius + this.vy;
+  //   let currentBallBottom = this.y + this.radius + this.vy;
+  //   let currentBallLeft = this.x - this.radius + this.vx;
+  //   let currentBallRight = this.x + this.radius + this.vx;
+  //   let currentVY = this.vy;
+  //   let currentVX = this.vx;
+  //   let counter = 1;
+  //   console.log(ballArray);
+  //   console.log("before the foreach");
+  //   ballArray.forEach(ball => {
+  //     let otherBallTop = ball.y - ball.radius + ball.vy;
+  //     let otherBallBottom = ball.y + ball.radius + ball.vy;
+  //     let otherBallLeft = ball.x - ball.radius + ball.vx;
+  //     let otherBallRight = ball.x + ball.radius + ball.vx;
+  //     console.log(counter);
+  //     counter++;
+  //     if (
+  //       currentBallTop < otherBallBottom ||
+  //       currentBallBottom > otherBallTop
+  //     ) {
+  //       currentVY = currentVY * -1;
+  //     }
+  //     if (
+  //       currentBallLeft < otherBallRight ||
+  //       currentBallRight > otherBallLeft
+  //     ) {
+  //       currentVX = currentVX * -1;
+  //     }
+  //   });
+  //   this.vx = currentVX;
+  //   this.vy = currentVY;
+  // }
+
 
   _createClass(Ball, [{
     key: "determineDirection",
@@ -442,16 +476,25 @@ function () {
     }
   }, {
     key: "reset",
-    value: function reset() {
+    value: function reset(counter) {
       this.y = this.boardHeight / 2;
-      this.x = this.boardWidth / 2;
+      this.x = this.boardWidth / 2; // for ball collision and later implementation. since the max total balls is going to be 4 I a setting up the starting location for them.
+      // this.startingLocation = [];
+      // this.startingLocation = [
+      //   { x: this.x - this.radius * 2, y: this.y - this.radius * 2 },
+      //   { x: this.x + this.radius * 2, y: this.y - this.radius * 2 },
+      //   { x: this.x - this.radius * 2, y: this.y + this.radius * 2 },
+      //   { x: this.x + this.radius * 2, y: this.y + this.radius * 2 }
+      // ];
+
       this.vy = 0;
 
       while (this.vy === 0) {
         this.vy = Math.floor(Math.random() * 10) - 5;
       }
 
-      this.vx = (6 - Math.abs(this.vy)) * this.direction;
+      this.vx = (this.speed - Math.abs(this.vy)) * this.direction; // this.y = startingLocation[counter].y;
+      // this.x = startingLocation[counter].x;
     }
   }, {
     key: "wallCollision",
@@ -464,10 +507,12 @@ function () {
       };
 
       if (ballLocation.bottom >= this.boardHeight || ballLocation.top < 0) {
-        this.vy = this.vy * -1; // this.pingsound.play();
+        this.vy = this.vy * -1;
+        this.pingsound.play();
       }
 
       if (ballLocation.right >= this.boardWidth || ballLocation.left < 0) {
+        this.reset();
         roundEnd = true;
       }
 
@@ -478,7 +523,8 @@ function () {
     value: function detectCollision(position, position2, score, roundEnd) {
       if (position.left < position2.right) {
         if (position.bottom >= position2.top && position.top <= position2.bottom) {
-          this.vx = this.vx * -1; // this.pingsound.play();
+          this.vx = this.vx * -1;
+          this.pingsound.play();
         } else {
           score.paddleScore();
           roundEnd = true;
@@ -519,7 +565,7 @@ function () {
     }
   }, {
     key: "render",
-    value: function render(svg, paddle1, paddle2, roundEnd) {
+    value: function render(svg, paddle1, paddle2, roundEnd, ballArray) {
       var circleSvg = document.createElementNS(_settings.SVG_NS, "circle");
       circleSvg.setAttributeNS(null, "cx", this.x);
       circleSvg.setAttributeNS(null, "cy", this.y);
@@ -527,7 +573,11 @@ function () {
       circleSvg.setAttributeNS(null, "fill", "white");
       svg.appendChild(circleSvg);
       roundEnd = this.wallCollision(roundEnd);
-      roundEnd = this.paddleCollision(paddle1, paddle2, roundEnd);
+      roundEnd = this.paddleCollision(paddle1, paddle2, roundEnd); //
+      // if (ballArray.length >= 2) {
+      //   this.ballCollision(ballArray);
+      // }
+
       this.ballMove();
       return roundEnd;
     }
@@ -791,15 +841,10 @@ function () {
     value: function increaseBalls() {
       var score1 = this.paddle1.score;
       var score2 = this.paddle2.score;
-      console.log(Math.floor((score1 + score2) / 5));
-      console.log(this.balls.length);
 
       if (Math.floor((score1 + score2) / 5) >= this.balls.length) {
-        console.log("if");
         var newBall = new _Ball.default(_settings.BALL_RADIUS, _settings.GAME_WIDTH, _settings.GAME_HEIGHT);
         this.balls.push(newBall);
-      } else {
-        console.log("else");
       }
     }
   }, {
@@ -822,8 +867,10 @@ function () {
               _this2.roundEnd = ball1.render(svg, _this2.paddle1, _this2.paddle2, _this2.roundEnd, _this2.balls);
             });
           } else {
+            var counter = 0;
             this.balls.forEach(function (ball1) {
               ball1.reset();
+              counter++;
             });
             this.increaseBalls();
             this.roundEnd = false;
@@ -901,7 +948,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63790" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49812" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
